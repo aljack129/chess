@@ -8,6 +8,8 @@ package chess;
  */
 public class ChessBoard {
 
+    private ChessPiece[][] board = new ChessPiece[8][8];
+
     public ChessBoard() {
         
     }
@@ -19,7 +21,11 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        if (position.getRow() > 8 || position.getRow() < 1 || position.getColumn() > 8 || position.getColumn() < 1){
+            throw new IndexOutOfBoundsException("Tried to put a piece somewhere it can't go.");
+        }
+        board[position.getRow()-1][position.getColumn()-1] = piece;
+
     }
 
     /**
@@ -30,7 +36,10 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        if (position.getRow() > 8 || position.getRow() < 1 || position.getColumn() > 8 || position.getColumn() < 1){
+            throw new IndexOutOfBoundsException("Tried to put a piece somewhere it can't go.");
+        }
+        return board[position.getRow()-1][position.getColumn()-1];
     }
 
     /**
