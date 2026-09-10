@@ -10,8 +10,8 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor color;
-    private ChessPiece.PieceType type;
+    private final ChessGame.TeamColor color;
+    private final ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType pieceType) {
         color = pieceColor;
@@ -55,5 +55,17 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
 
+    private final int[][] bishop_directions = {{-1,1}, {-1,-1}, {1,1}, {1,-1}};
+    private final int[][] rook_directions = {{0,1}, {0,-1}, {1,0}, {-1,0}};
+    private final int[][] queen_king_directions = {{-1,1}, {-1,-1}, {1,1}, {1,-1}, {0,1}, {0,-1}, {1,0}, {-1,0}};
+    private final int[][] knight_directions = {{2,1}, {2,-1}, {-2,1}, {-2,-1}, {1,2}, {1,-2}, {-1,2}, {-1,-2}};
 
+    private boolean canCapture(ChessPiece piece){
+        if (piece.getTeamColor() == color){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 }
