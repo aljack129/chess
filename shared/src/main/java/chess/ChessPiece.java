@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -41,7 +42,10 @@ public class ChessPiece {
         return represent;
     }
 
-
+    @Override
+    public int hashCode(){
+        return 23 * Objects.hashCode(type);
+    }
 
     /**
      * @return Which team this chess piece belongs to
