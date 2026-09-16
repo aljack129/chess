@@ -31,6 +31,18 @@ public class ChessPiece {
         PAWN
     }
 
+    @Override
+    public String toString(){
+        char firstChar = type.name().charAt(0);
+        String represent = String.valueOf(firstChar);
+        if (color == ChessGame.TeamColor.WHITE){
+            represent = represent.toLowerCase();
+        }
+        return represent;
+    }
+
+
+
     /**
      * @return Which team this chess piece belongs to
      */
@@ -63,6 +75,7 @@ public class ChessPiece {
     private final int[][] queen_king_directions = {{-1,1}, {-1,-1}, {1,1}, {1,-1}, {0,1}, {0,-1}, {1,0}, {-1,0}};
     private final int[][] knight_directions = {{2,1}, {2,-1}, {-2,1}, {-2,-1}, {1,2}, {1,-2}, {-1,2}, {-1,-2}};
 
+    // Takes in a ChessPiece object. @return boolean if the piece inputted can be captured by this current piece
     private boolean canCapture(ChessPiece piece){
         if (piece.getTeamColor() == color){
             return false;
@@ -72,6 +85,11 @@ public class ChessPiece {
         }
     }
 
+    /*
+       recursive helper function to help the pieceMoves function
+       Input the start, the current spot we're looking at, the board we're on, and the lists of moves
+       returns nothing, modifies list of moves as needed.
+     */
     private void checkDirections(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves) {
         if (board.validSpot(spot)) {
             int [][] directions = {{}};
