@@ -43,6 +43,13 @@ public class ChessPiece {
     }
 
     @Override
+    public boolean equals(ChessPiece piece){
+        if (this == piece) return true;
+        if (piece == null || this.getClass() != piece.getClass()) return false;
+        return piece.getPieceType() == type && piece.getTeamColor() == color;
+    }
+
+    @Override
     public int hashCode(){
         return 23 * Objects.hashCode(type);
     }
