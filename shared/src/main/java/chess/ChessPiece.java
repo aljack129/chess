@@ -36,22 +36,26 @@ public class ChessPiece {
     public String toString(){
         char firstChar = type.name().charAt(0);
         String represent = String.valueOf(firstChar);
-        if (color == ChessGame.TeamColor.WHITE){
+        if (color == ChessGame.TeamColor.BLACK){
             represent = represent.toLowerCase();
         }
         return represent;
     }
 
+
     @Override
-    public boolean equals(ChessPiece piece){
+    public boolean equals(Object piece){
         if (this == piece) return true;
         if (piece == null || this.getClass() != piece.getClass()) return false;
-        return piece.getPieceType() == type && piece.getTeamColor() == color;
+        ChessPiece that = (ChessPiece) piece;
+        return type.equals(that.getPieceType()) && color.equals(that.getTeamColor());
     }
+
+
 
     @Override
     public int hashCode(){
-        return 23 * Objects.hashCode(type);
+        return 23 * Objects.hash(type, color);
     }
 
     /**
@@ -77,7 +81,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList();
-        checkDirections(myPosition, myPosition, board, moves);
+        checkDirections(myPosition, myPosition, board, moves, null);
         return moves;
     }
 
@@ -101,11 +105,13 @@ public class ChessPiece {
        Input the start, the current spot we're looking at, the board we're on, and the lists of moves
        returns nothing, modifies list of moves as needed.
      */
-    private void checkDirections(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves) {
+    private void checkDirections(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves, int[] currentDir) {
         if (board.validSpot(spot)) {
             int [][] directions = {{}};
             if(spot == start || board.getPiece(spot) == null){
-                moves.add(new ChessMove(start, spot, type));
+                if (board.getPiece(spot) == null && type != ChessPiece.PieceType.PAWN) {
+                    moves.add(new ChessMove(start, spot, null));
+                }
 
                 if (type == ChessPiece.PieceType.BISHOP) {
                     directions = bishop_directions;
@@ -120,13 +126,13 @@ public class ChessPiece {
                     directions = queen_king_directions;
                     for (int[] dir : directions){
                         ChessPosition newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                        if (board.getPiece(newSpot) != null) {
+                        if (board.validSpot(newSpot) && board.getPiece(newSpot) != null) {
                             if (canCapture(board.getPiece(newSpot))){
-                                moves.add(new ChessMove(start, newSpot, type));
+                                moves.add(new ChessMove(start, newSpot, null));
                             }
                         }
-                        else{
-                            moves.add(new ChessMove(start, newSpot, type));
+                        else if (board.validSpot(newSpot)){
+                            moves.add(new ChessMove(start, newSpot, null));
                         }
                     }
                     return;
@@ -135,13 +141,13 @@ public class ChessPiece {
                     directions = knight_directions;
                     for (int[] dir : directions){
                         ChessPosition newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                        if (board.getPiece(newSpot) != null) {
+                        if (board.validSpot(newSpot) && board.getPiece(newSpot) != null) {
                             if (canCapture(board.getPiece(newSpot))){
-                                moves.add(new ChessMove(start, newSpot, type));
+                                moves.add(new ChessMove(start, newSpot, null));
                             }
                         }
-                        else{
-                            moves.add(new ChessMove(start, newSpot, type));
+                        else if (board.validSpot(newSpot)){
+                            moves.add(new ChessMove(start, newSpot, null));
                         }
                     }
                     return;
@@ -149,15 +155,15 @@ public class ChessPiece {
                 else if(type == ChessPiece.PieceType.PAWN){
                     if(color == ChessGame.TeamColor.BLACK){
                         ChessPosition newSpot = new ChessPosition(spot.getRow() + 0, spot.getColumn() -1);
-                        if(board.getPiece(newSpot) == null){
-                            moves.add(new ChessMove(start, newSpot, type));
+                        if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
+                            moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
                         }
-                        int[][] pawn_directions = {{-1,-1}, {1,-1}};
+                        int[][] pawn_directions = {{-1,1}, {1,1}};
                         for (int[] dir : pawn_directions){
                             newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                            if (board.getPiece(newSpot) != null) {
+                            if (board.validSpot(newSpot) && board.getPiece(newSpot) != null) {
                                 if (canCapture(board.getPiece(newSpot))){
-                                    moves.add(new ChessMove(start, newSpot, type));
+                                    moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
                                 }
                             }
                         }
@@ -165,31 +171,39 @@ public class ChessPiece {
                     }
                     else{
                         ChessPosition newSpot = new ChessPosition(spot.getRow() + 0, spot.getColumn() + 1);
-                        if(board.getPiece(newSpot) == null){
-                            moves.add(new ChessMove(start, newSpot, type));
+                        if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
+                            moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
                         }
-                        int[][] pawn_directions = {{-1,1}, {1,1}};
+                        int[][] pawn_directions = {{-1,-1}, {1,-1}};
                         for (int[] dir : pawn_directions){
                             newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                            if (board.getPiece(newSpot) != null) {
+                            if (board.validSpot(newSpot) && board.getPiece(newSpot) != null) {
                                 if (canCapture(board.getPiece(newSpot))){
-                                    moves.add(new ChessMove(start, newSpot, type));
+                                    moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
                                 }
                             }
                         }
                         return;
                     }
                 }
-
-                for (int[] dir : directions){
-                    ChessPosition newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                    checkDirections(start, newSpot, board, moves);
+                if (currentDir == null ) {
+                    for (int[] dir : directions) {
+                        ChessPosition newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
+                        checkDirections(start, newSpot, board, moves, dir);
+                    }
+                    return;
                 }
-                return;
+                else{
+                    ChessPosition newSpot = new ChessPosition(spot.getRow() + currentDir[0], spot.getColumn() + currentDir[1]);
+                    checkDirections(start, newSpot, board, moves, currentDir);
+                }
             }
             else if (board.getPiece(spot) != null) {
                 if (canCapture(board.getPiece(spot))){
-                    moves.add(new ChessMove(start, spot, type));
+                    if (type != ChessPiece.PieceType.PAWN) {
+                        moves.add(new ChessMove(start, spot, null));
+                        return;
+                    }
                 }
             }
 
