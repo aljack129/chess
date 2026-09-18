@@ -26,19 +26,6 @@ public class ChessMove {
         return String.format("%s%s", start, end);
     }
 
-//    @Override
-//    public boolean equals(Object move){
-//        if (this == move) return true;
-//        if (move == null || this.getClass() != move.getClass()) return false;
-//        ChessMove that = (ChessMove) move;
-//        return start.equals(that.getStartPosition()) && end.equals(that.getEndPosition());
-//    }
-//
-//    @Override
-//    public int hashCode(){
-//        return 23 * Objects.hash(start, end);
-//    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -46,12 +33,12 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promote == chessMove.promote;
+        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(start, end, promote);
+        return 23 * Objects.hash(start, end);
     }
 
     /**

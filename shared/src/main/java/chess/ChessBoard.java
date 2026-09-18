@@ -41,7 +41,7 @@ public class ChessBoard {
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(board);
+        return 23 * Arrays.deepHashCode(board);
     }
 
     /**
