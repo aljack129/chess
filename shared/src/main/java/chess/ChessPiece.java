@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -163,19 +164,28 @@ public class ChessPiece {
 
                 //Pawn movements
                 else if(type == ChessPiece.PieceType.PAWN){
+                    PieceType[] promotionPieces = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP};
                     //if the pawn is black
                     if(color == ChessGame.TeamColor.BLACK){
                         //Check in front
                         ChessPosition newSpot = new ChessPosition(spot.getRow() - 1, spot.getColumn());
-                        System.out.print(board.getPiece(newSpot));
                         if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
-                            moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
+                            //check for promotion
+                            if (newSpot.getRow() == 1){
+                                for (ChessPiece.PieceType t : promotionPieces){
+                                    moves.add(new ChessMove(start, newSpot, t));
+                                }
+                            }
                             //if first move, it can move two forward if it's clear
-                            if (spot.getRow() == 7){
+                            else if (spot.getRow() == 7){
+                                moves.add(new ChessMove(start, newSpot, null));
                                 ChessPosition firstMove = new ChessPosition(spot.getRow() - 2, spot.getColumn());
                                 if(board.getPiece(firstMove) == null) {
-                                    moves.add(new ChessMove(start, firstMove, ChessPiece.PieceType.QUEEN));
+                                    moves.add(new ChessMove(start, firstMove, null));
                                 }
+                            }
+                            else{
+                                moves.add(new ChessMove(start, newSpot, null));
                             }
                         }
 
@@ -184,7 +194,15 @@ public class ChessPiece {
                         for (int[] dir : pawn_directions){
                             newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
                             if (board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))) {
-                                moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
+                                //check for promotion
+                                if (newSpot.getRow() == 1){
+                                    for (ChessPiece.PieceType t : promotionPieces){
+                                        moves.add(new ChessMove(start, newSpot, t));
+                                    }
+                                }
+                                else{
+                                    moves.add(new ChessMove(start, newSpot, null));
+                                }
 
                             }
                         }
@@ -195,13 +213,22 @@ public class ChessPiece {
                         //check in front
                         ChessPosition newSpot = new ChessPosition(spot.getRow() + 1, spot.getColumn());
                         if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
-                            moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
+                            //check for promotion
+                            if (newSpot.getRow() == 8){
+                                for (ChessPiece.PieceType t : promotionPieces){
+                                    moves.add(new ChessMove(start, newSpot, t));
+                                }
+                            }
                             //if it's its first turn, it can move two
-                            if (spot.getRow() == 2) {
+                            else if (spot.getRow() == 2) {
+                                moves.add(new ChessMove(start, newSpot, null));
                                 ChessPosition firstMove = new ChessPosition(spot.getRow() + 2, spot.getColumn());
                                 if (board.validSpot(firstMove) && board.getPiece(firstMove) == null) {
-                                    moves.add(new ChessMove(start, firstMove, ChessPiece.PieceType.QUEEN));
+                                    moves.add(new ChessMove(start, firstMove, null));
                                 }
+                            }
+                            else{
+                                moves.add(new ChessMove(start, newSpot, null));
                             }
                         }
                         //check diagonally, see if it can capture
@@ -209,7 +236,15 @@ public class ChessPiece {
                         for (int[] dir : pawn_directions){
                             newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
                             if (board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))) {
-                                moves.add(new ChessMove(start, newSpot, ChessPiece.PieceType.QUEEN));
+                                //Check for promotion
+                                if (newSpot.getRow() == 8){
+                                    for (ChessPiece.PieceType t : promotionPieces){
+                                        moves.add(new ChessMove(start, newSpot, t));
+                                    }
+                                }
+                                else{
+                                    moves.add(new ChessMove(start, newSpot, null));
+                                }
 
                             }
                         }
