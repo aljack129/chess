@@ -82,202 +82,139 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList();
-        checkDirections(myPosition, myPosition, board, moves, null);
+        findMoves(myPosition, myPosition, board, moves, null);
         return moves;
     }
 
-    private final int[][] bishop_directions = {{-1,1}, {-1,-1}, {1,1}, {1,-1}};
-    private final int[][] rook_directions = {{0,1}, {0,-1}, {1,0}, {-1,0}};
-    private final int[][] queen_king_directions = {{-1,1}, {-1,-1}, {1,1}, {1,-1}, {0,1}, {0,-1}, {1,0}, {-1,0}};
-    private final int[][] knight_directions = {{2,1}, {2,-1}, {-2,1}, {-2,-1}, {1,2}, {1,-2}, {-1,2}, {-1,-2}};
+    private void findMoves(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves, int[] currentDir){
+        //if still on board
+        if(board.validSpot(spot)){
+            // if starting, or on empty spot
+            if(start == spot || board.getPiece(spot) == null){
+                int[][] directions = {{}};
+                //if the piece is sliding
+                if(board.getPiece(spot) == null){
+                    moves.add(new ChessMove(start, spot, null));
+                }
 
-    // Takes in a ChessPiece object. @return boolean if the piece inputted can be captured by this current piece
-    private boolean canCapture(ChessPiece piece){
-        if (piece == null || piece.getTeamColor() == color){
+                if(type == ChessPiece.PieceType.ROOK || type == ChessPiece.PieceType.QUEEN || type == ChessPiece.PieceType.BISHOP){
+
+                    if(type == ChessPiece.PieceType.ROOK){
+                        directions = new int[][] {{1,0}, {-1,0}, {0,1}, {0,-1}};
+                    }
+                    else if(type == ChessPiece.PieceType.BISHOP){
+                        directions = new int[][] {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
+                    }
+                    else if(type == ChessPiece.PieceType.QUEEN){
+                        directions = new int[][] {{1,1}, {-1,1}, {1,-1}, {-1,-1}, {1,0}, {-1,0}, {0,1}, {0,-1}};
+                    }
+
+                    if(currentDir == null){
+                        for(int[] dir : directions){
+                            ChessPosition newSpot = new ChessPosition(start.getRow() + dir[0], start.getColumn() + dir[1]);
+                            findMoves(start, newSpot, board, moves, dir);
+                        }
+                    }
+                    else{
+                        ChessPosition newSpot = new ChessPosition(spot.getRow() + currentDir[0], spot.getColumn() + currentDir[1]);
+                        findMoves(start, newSpot, board, moves, currentDir);
+                    }
+
+                }
+                //if piece is checking only one space in given directions and is not a pawn
+                else if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT){
+
+                    if(type == ChessPiece.PieceType.KNIGHT){
+                        directions = new int[][] {{1,2}, {-1,2}, {1,-2}, {-1,-2}, {2,1}, {-2,1}, {2,-1}, {-2,-1}};
+                    }
+                    else if(type == ChessPiece.PieceType.KING){
+                        directions = new int[][] {{1,1}, {-1,1}, {1,-1}, {-1,-1}, {1,0}, {-1,0}, {0,1}, {0,-1}};
+                    }
+
+                    for(int[] dir : directions){
+                        ChessPosition newSpot = new ChessPosition(start.getRow() + dir[0], start.getColumn() + dir[1]);
+                        if(board.validSpot(newSpot) && (board.getPiece(newSpot) == null || canCapture(board.getPiece(newSpot)))){
+                            moves.add(new ChessMove(start, newSpot, null));
+                        }
+                    }
+                    return;
+                }
+                //if piece is a pawn
+                else{
+                    int dir;
+                    int promoLine;
+                    int init;
+                    directions = new int[][] {{1,1}, {1,-1}};
+                    ChessPiece.PieceType[] promos = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT};
+
+                    if(color == ChessGame.TeamColor.BLACK){
+                        dir = -1;
+                        promoLine = 1;
+                        init = 7;
+                    }
+                    else{
+                        dir = 1;
+                        promoLine = 8;
+                        init = 2;
+                    }
+
+                    //moving straight forward
+                    ChessPosition newSpot = new ChessPosition(spot.getRow() + 1 * dir, spot.getColumn());
+                    if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
+                        if(newSpot.getRow() == promoLine){
+                            for (ChessPiece.PieceType p : promos){
+                                moves.add(new ChessMove(start, newSpot, p));
+                            }
+                        }
+                        else if(start.getRow() == init){
+                            moves.add(new ChessMove(start, newSpot, null));
+                            newSpot = new ChessPosition(spot.getRow() + 2 * dir, spot.getColumn());
+                            if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
+                                moves.add(new ChessMove(start, newSpot, null));
+                            }
+                        }
+                        else {
+                            moves.add(new ChessMove(start, newSpot, null));
+                        }
+                    }
+
+                    //moving diagonally
+                    for(int[] d : directions){
+                        newSpot = new ChessPosition(spot.getRow() + d[0] * dir, spot.getColumn() + d[1]);
+                        if(board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))){
+                            if(newSpot.getRow() == promoLine){
+                                for (ChessPiece.PieceType p : promos){
+                                    moves.add(new ChessMove(start, newSpot, p));
+                                }
+                            }
+                            else {
+                                moves.add(new ChessMove(start, newSpot, null));
+                            }
+                        }
+                    }
+                    return;
+                }
+            }
+            //if spot has a piece in it and is not at start
+            else{
+                if(canCapture(board.getPiece(spot))){
+                    moves.add(new ChessMove(start, spot, null));
+                }
+                return;
+            }
+        }
+        //if recursed off of board
+        else{
+            return;
+        }
+    }
+
+    private boolean canCapture(ChessPiece o){
+        if(o.getTeamColor() == color){
             return false;
         }
         else{
             return true;
         }
     }
-
-    /*
-       recursive helper function to help the pieceMoves function
-       Input the start, the current spot we're looking at, the board we're on, and the lists of moves
-       returns nothing, modifies list of moves as needed.
-     */
-    private void checkDirections(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves, int[] currentDir) {
-        //if we're at a valid spot on the board
-        if (board.validSpot(spot)) {
-            int [][] directions = {{}};
-            //If we're at the start, or we're starting our recursion on an empty space
-            if(spot == start || board.getPiece(spot) == null){
-                //if we recursively are on a space that is empty, add it to our list of moves
-                if (board.getPiece(spot) == null) {
-                    moves.add(new ChessMove(start, spot, null));
-                }
-
-                //if it's one of the recursive ones, set directions
-                if (type == ChessPiece.PieceType.BISHOP) {
-                    directions = bishop_directions;
-                }
-                else if(type == ChessPiece.PieceType.ROOK){
-                    directions = rook_directions;
-                }
-                else if(type == ChessPiece.PieceType.QUEEN){
-                    directions = queen_king_directions;
-                }
-
-                //king movements
-                else if (type == ChessPiece.PieceType.KING){
-                    directions = queen_king_directions;
-                    for (int[] dir : directions){
-                        ChessPosition newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                        if (board.validSpot(newSpot) && board.getPiece(newSpot) != null) {
-                            if (canCapture(board.getPiece(newSpot))){
-                                moves.add(new ChessMove(start, newSpot, null));
-                            }
-                        }
-                        else if (board.validSpot(newSpot)){
-                            moves.add(new ChessMove(start, newSpot, null));
-                        }
-                    }
-                    return;
-                }
-
-                //knight movements
-                else if(type == ChessPiece.PieceType.KNIGHT){
-                    directions = knight_directions;
-                    for (int[] dir : directions){
-                        ChessPosition newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                        if (board.validSpot(newSpot) && board.getPiece(newSpot) != null) {
-                            if (canCapture(board.getPiece(newSpot))){
-                                moves.add(new ChessMove(start, newSpot, null));
-                            }
-                        }
-                        else if (board.validSpot(newSpot)){
-                            moves.add(new ChessMove(start, newSpot, null));
-                        }
-                    }
-                    return;
-                }
-
-                //Pawn movements
-                else if(type == ChessPiece.PieceType.PAWN){
-                    PieceType[] promotionPieces = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP};
-                    //if the pawn is black
-                    if(color == ChessGame.TeamColor.BLACK){
-                        //Check in front
-                        ChessPosition newSpot = new ChessPosition(spot.getRow() - 1, spot.getColumn());
-                        if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
-                            //check for promotion
-                            if (newSpot.getRow() == 1){
-                                for (ChessPiece.PieceType t : promotionPieces){
-                                    moves.add(new ChessMove(start, newSpot, t));
-                                }
-                            }
-                            //if first move, it can move two forward if it's clear
-                            else if (spot.getRow() == 7){
-                                moves.add(new ChessMove(start, newSpot, null));
-                                ChessPosition firstMove = new ChessPosition(spot.getRow() - 2, spot.getColumn());
-                                if(board.getPiece(firstMove) == null) {
-                                    moves.add(new ChessMove(start, firstMove, null));
-                                }
-                            }
-                            else{
-                                moves.add(new ChessMove(start, newSpot, null));
-                            }
-                        }
-
-                        //check to see if we can capture diagonally
-                        int[][] pawn_directions = {{-1,-1}, {-1,1}};
-                        for (int[] dir : pawn_directions){
-                            newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                            if (board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))) {
-                                //check for promotion
-                                if (newSpot.getRow() == 1){
-                                    for (ChessPiece.PieceType t : promotionPieces){
-                                        moves.add(new ChessMove(start, newSpot, t));
-                                    }
-                                }
-                                else{
-                                    moves.add(new ChessMove(start, newSpot, null));
-                                }
-
-                            }
-                        }
-                        return;
-                    }
-                    //if the pawn is white
-                    else{
-                        //check in front
-                        ChessPosition newSpot = new ChessPosition(spot.getRow() + 1, spot.getColumn());
-                        if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
-                            //check for promotion
-                            if (newSpot.getRow() == 8){
-                                for (ChessPiece.PieceType t : promotionPieces){
-                                    moves.add(new ChessMove(start, newSpot, t));
-                                }
-                            }
-                            //if it's its first turn, it can move two
-                            else if (spot.getRow() == 2) {
-                                moves.add(new ChessMove(start, newSpot, null));
-                                ChessPosition firstMove = new ChessPosition(spot.getRow() + 2, spot.getColumn());
-                                if (board.validSpot(firstMove) && board.getPiece(firstMove) == null) {
-                                    moves.add(new ChessMove(start, firstMove, null));
-                                }
-                            }
-                            else{
-                                moves.add(new ChessMove(start, newSpot, null));
-                            }
-                        }
-                        //check diagonally, see if it can capture
-                        int[][] pawn_directions = {{1,-1}, {1,1}};
-                        for (int[] dir : pawn_directions){
-                            newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                            if (board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))) {
-                                //Check for promotion
-                                if (newSpot.getRow() == 8){
-                                    for (ChessPiece.PieceType t : promotionPieces){
-                                        moves.add(new ChessMove(start, newSpot, t));
-                                    }
-                                }
-                                else{
-                                    moves.add(new ChessMove(start, newSpot, null));
-                                }
-
-                            }
-                        }
-                        return;
-                    }
-                }
-
-                //for the recursive ones
-                //if we are starting at start, look in all the directions
-                if (currentDir == null ) {
-                    for (int[] dir : directions) {
-                        ChessPosition newSpot = new ChessPosition(spot.getRow() + dir[0], spot.getColumn() + dir[1]);
-                        checkDirections(start, newSpot, board, moves, dir);
-                    }
-                    return;
-                }
-                //if we've already started moving, keep going in that direction, don't turn
-                else{
-                    ChessPosition newSpot = new ChessPosition(spot.getRow() + currentDir[0], spot.getColumn() + currentDir[1]);
-                    checkDirections(start, newSpot, board, moves, currentDir);
-                }
-            }
-            //If we've recursed to a spot with a piece on it, check if we can capture, and add it to the list if we can
-            else if (board.getPiece(spot) != null && canCapture(board.getPiece(spot))) {
-                moves.add(new ChessMove(start, spot, null));
-            }
-            return;
-
-        }
-        //if we're not at a valid spot on the board
-        else{
-            return;
-        }
-    }
-
 }
