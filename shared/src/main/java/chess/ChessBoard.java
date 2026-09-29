@@ -58,7 +58,7 @@ public class ChessBoard {
 
     }
 
-    public void makeMove(ChessMove move){
+    public void movePiece(ChessMove move){
         ChessPiece piece = getPiece(move.getStartPosition());
         addPiece(move.getEndPosition(), piece);
         addPiece(move.getStartPosition(), null);
