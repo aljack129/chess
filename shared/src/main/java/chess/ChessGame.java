@@ -20,6 +20,11 @@ public class ChessGame {
         board.resetBoard();
     }
 
+    private ChessGame(TeamColor copyTurn, ChessBoard copyBoard){
+        turn = copyTurn;
+        board = copyBoard;
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -80,13 +85,7 @@ public class ChessGame {
 
     }
 
-    /**
-     * Determines if the given team is in check
-     *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
-     */
-    public boolean isInCheck(TeamColor teamColor) {
+    private ChessPosition findKing(TeamColor teamColor){
         ChessPosition kingSpot = new ChessPosition(1,1);
         boolean found = false;
         for(int i = 1; i <= 8; i++){
@@ -104,6 +103,19 @@ public class ChessGame {
                 break;
             }
         }
+
+        return kingSpot;
+    }
+
+    /**
+     * Determines if the given team is in check
+     *
+     * @param teamColor which team to check for check
+     * @return True if the specified team is in check
+     */
+    public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingSpot = findKing(teamColor);
+
         ChessPiece omni = new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN);
         Collection<ChessMove> omnimoves = omni.pieceMoves(board, kingSpot);
         for (ChessMove move : omnimoves){
@@ -137,8 +149,8 @@ public class ChessGame {
         }
 
 
-        ChessPosition pawn1 = new ChessPosition(kingSpot.getRow() + 1 * direction, kingSpot.getColumn() - 1);
-        ChessPosition pawn2 = new ChessPosition(kingSpot.getRow() + 1 * direction, kingSpot.getColumn() + 1);
+        ChessPosition pawn1 = new ChessPosition(kingSpot.getRow() + direction, kingSpot.getColumn() - 1);
+        ChessPosition pawn2 = new ChessPosition(kingSpot.getRow() + direction, kingSpot.getColumn() + 1);
         if(
                 board.validSpot(pawn1) && board.getPiece(pawn1).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(pawn1).getTeamColor() != teamColor ||
                 board.validSpot(pawn2) && board.getPiece(pawn2).getPieceType() == ChessPiece.PieceType.PAWN && board.getPiece(pawn2).getTeamColor() != teamColor
@@ -160,7 +172,15 @@ public class ChessGame {
             return false;
         }
 
+        ChessPosition kingSpot = findKing(teamColor);
+        Collection<ChessMove> kingMoves = board.getPiece(kingSpot).pieceMoves(board, kingSpot);
 
+        for(ChessMove move : kingMoves){
+            ChessBoard testBoard = new ChessBoard(board);
+
+        }
+
+        return true;
     }
 
     /**

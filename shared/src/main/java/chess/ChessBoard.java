@@ -13,8 +13,17 @@ public class ChessBoard {
 
     private ChessPiece[][] board = new ChessPiece[8][8];
 
+    //new null chessBoard object
     public ChessBoard() {
-        
+    }
+
+    //copy of chessBoard object
+    public ChessBoard(ChessBoard copyBoard){
+        for(int i = 1; i <= 8; i++){
+            for(int j = 1; j <= 8; j++){
+                board[i-1][j-1] = copyBoard.getPiece(new ChessPosition(i, j));
+            }
+        }
     }
 
     @Override
