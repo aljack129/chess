@@ -32,7 +32,12 @@ public class ChessBoard {
         for (ChessPiece[] i : board ){
             total += "|";
             for(ChessPiece p : i){
-                total += String.format("%s|",p);
+                if(p == null){
+                    total += " |";
+                }
+                else {
+                    total += String.format("%s|", p);
+                }
             }
             total += "\n";
         }

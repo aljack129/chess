@@ -72,15 +72,14 @@ public class ChessGame {
             Collection<ChessMove> valids = new ArrayList();
 
             ChessGame testGame = new ChessGame();
-            ChessBoard testBoard = new ChessBoard(board);
-            testGame.setBoard(testBoard);
 
             for (ChessMove move : moves) {
+                ChessBoard testBoard = new ChessBoard(board);
+                testGame.setBoard(testBoard);
                 testBoard.movePiece(move);
                 if (!testGame.isInCheck(board.getPiece(startPosition).getTeamColor())) {
                     valids.add(move);
                 }
-                testBoard.movePiece(new ChessMove(move.getEndPosition(), move.getStartPosition(), board.getPiece(startPosition).getPieceType()));
             }
             return valids;
 
@@ -250,18 +249,11 @@ public class ChessGame {
             return false;
         }
 
-        ChessPosition kingSpot = findKing(teamColor);
-        Collection<ChessMove> kingMoves = validMoves(kingSpot);
-
-       if(kingMoves != null || kingMoves.size() != 0){
-           return false;
-       }
-
         Collection<ChessPosition> myTeam = findTeam(teamColor);
 
         for(ChessPosition spot: myTeam){
             Collection<ChessMove> moves = validMoves(spot);
-            if(moves != null || moves.size() != 0){
+            if(moves != null && moves.size() != 0){
                 return false;
             }
         }
@@ -285,7 +277,7 @@ public class ChessGame {
 
         for(ChessPosition spot: myTeam){
             Collection<ChessMove> moves = validMoves(spot);
-            if(moves != null || moves.size() != 0){
+            if(moves != null && moves.size() != 0){
                 return false;
             }
         }

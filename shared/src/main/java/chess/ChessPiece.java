@@ -35,8 +35,14 @@ public class ChessPiece {
 
     @Override
     public String toString(){
-        char firstChar = type.name().charAt(0);
-        String represent = String.valueOf(firstChar);
+        String represent;
+        if(type == PieceType.KNIGHT){
+            represent = "N";
+        }
+        else {
+            char firstChar = type.name().charAt(0);
+            represent = String.valueOf(firstChar);
+        }
         if (color == ChessGame.TeamColor.BLACK){
             represent = represent.toLowerCase();
         }
