@@ -1,7 +1,11 @@
-package server;
+package service;
 
 import chess.*;
 import dataaccess.*;
+import model.*;
+import server.AlreadyTakenException;
+import server.NotFoundException;
+import server.UnauthorizedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +24,7 @@ public class Services {
         if (user == null) {
             database.createUser(username, password, email);
             String authToken = database.addAuth(username);
-            return new HashMap<>(Map.of(username, authToken));
+            return new HashMap<>(Map.of("usernmae", username, "authToken", authToken));
         } else {
             throw new AlreadyTakenException("Error:username already taken");
         }

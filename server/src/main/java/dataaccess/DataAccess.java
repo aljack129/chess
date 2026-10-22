@@ -1,5 +1,8 @@
 package dataaccess;
 
+import model.GameData;
+import model.UserData;
+
 import java.util.ArrayList;
 
 public interface DataAccess {
