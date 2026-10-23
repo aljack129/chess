@@ -27,10 +27,15 @@ public class MemoryDataAccess implements DataAccess {
         return games.size();
     }
 
+    @Override
+    public int authSize() {
+        return authorized.size();
+    }
 
     @Override
     public void clear() {
         users = new HashMap<>();
+        authorized = new HashMap<>();
         games = new HashMap<>();
     }
 

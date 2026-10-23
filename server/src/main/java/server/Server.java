@@ -6,7 +6,7 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.*;
-import service.Services;
+import service.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,14 +32,14 @@ public class Server {
     }
 
     private static void register(Context ctx) {
-        //var result = Map.of("username", "", "authToken", "");
         try {
-            HashMap<String, String> body = ctx.bodyAsClass(HashMap.class);
-            HashMap result = services.registerUser(body.get("username"), body.get("password"), body.get("email"));
-            ctx.result(new Gson().toJson(result));
+            String json = ctx.body();
+            Gson gson = new Gson();
+            RegisterUserInput input = gson.fromJson(json, RegisterUserInput.class);
+            RegisterUserResult result = services.registerUser(input);
+            ctx.status(200).result(gson.toJson(result));
         } catch (AlreadyTakenException e) {
-            ctx.status(403);
-            ctx.result(new Gson().toJson(Map.of("message", "Error: already taken")));
+            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: already taken")));
         }
     }
 
@@ -49,26 +49,33 @@ public class Server {
     }
 
     private static void logIn(Context ctx) {
-        HashMap<String, String> body = ctx.bodyAsClass(HashMap.class);
+        String json = ctx.body();
+        Gson gson = new Gson();
+        LoginInput input = null;
         try {
-            HashMap result = services.loginUser(body.get("username"), body.get("password"));
-            ctx.result(new Gson().toJson(result));
+            input = gson.fromJson(json, LoginInput.class);
+        } catch (Exception e) {
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+        }
+        try {
+            LoginResult result = services.loginUser(input);
+            ctx.status(200).result(gson.toJson(result));
+
         } catch (UnauthorizedException e) {
-            ctx.status(401);
-            //ctx.result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+
         } catch (NotFoundException e) {
-            ctx.status(400);
-            //ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+
         }
     }
 
     private static void logOut(Context ctx) {
         try {
             services.logoutUser(ctx.header("authorization"));
-            ctx.status(204);
+            ctx.status(200);
         } catch (UnauthorizedException e) {
-            ctx.status(401);
-            //ctx.result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         }
     }
 
@@ -86,19 +93,27 @@ public class Server {
             }
             ctx.result(new Gson().toJson(Map.of("games", mappedGames)));
         } catch (UnauthorizedException e) {
-            ctx.status(401);
-            //ctx.result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         }
     }
 
     private static void createGame(Context ctx) {
-        HashMap<String, String> body = ctx.bodyAsClass(HashMap.class);
+
+        String json = ctx.body();
+        Gson gson = new Gson();
+        CreateGameInput input = null;
         try {
-            int gameID = services.createGame(ctx.header("authorization"), body.get("gameName"));
-            ctx.result(new Gson().toJson(Map.of("gameID", gameID)));
+            input = gson.fromJson(json, CreateGameInput.class);
+        } catch (Exception e) {
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+        }
+
+
+        try {
+            CreateGameResult result = services.createGame(ctx.header("authorization"), input);
+            ctx.result(gson.toJson(result));
         } catch (UnauthorizedException e) {
-            ctx.status(401);
-            //ctx.result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         }
     }
 
@@ -111,18 +126,24 @@ public class Server {
         } else {
             color = ChessGame.TeamColor.BLACK;
         }
+
+        int gameID = 0;
+        if (body.get("gameID") != null) {
+            gameID = Integer.valueOf(body.get("gameID"));
+        } else {
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+        }
+
         try {
-            services.joinGame(ctx.header("authorization"), Integer.valueOf(body.get("gameID")), color);
+            services.joinGame(ctx.header("authorization"), gameID, color);
             ctx.status(200);
         } catch (AlreadyTakenException e) {
             ctx.status(403);
             ctx.result(new Gson().toJson(Map.of("message", "Error: already taken")));
         } catch (NotFoundException e) {
-            ctx.status(400);
-            //ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
         } catch (UnauthorizedException e) {
-            ctx.status(401);
-            //ctx.result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         }
     }
 

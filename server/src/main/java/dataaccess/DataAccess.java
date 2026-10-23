@@ -12,6 +12,8 @@ public interface DataAccess {
 
     int gameSize();
 
+    int authSize();
+
     void createUser(String username, String password, String email);
 
     UserData getUserData(String username);

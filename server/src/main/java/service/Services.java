@@ -3,9 +3,6 @@ package service;
 import chess.*;
 import dataaccess.*;
 import model.*;
-import server.AlreadyTakenException;
-import server.NotFoundException;
-import server.UnauthorizedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,23 +16,24 @@ public class Services {
         database = data;
     }
 
-    public HashMap<String, String> registerUser(String username, String password, String email) {
-        UserData user = database.getUserData(username);
+    public RegisterUserResult registerUser(RegisterUserInput input) {
+        //RegisterUserInput input = new RegisterUserInput(username, password, email);
+        UserData user = database.getUserData(input.username());
         if (user == null) {
-            database.createUser(username, password, email);
-            String authToken = database.addAuth(username);
-            return new HashMap<>(Map.of("usernmae", username, "authToken", authToken));
+            database.createUser(input.username(), input.password(), input.email());
+            String authToken = database.addAuth(input.username());
+            return new RegisterUserResult(input.username(), authToken);
         } else {
             throw new AlreadyTakenException("Error:username already taken");
         }
     }
 
-    public HashMap<String, String> loginUser(String username, String password) {
-        UserData user = database.getUserData(username);
+    public LoginResult loginUser(LoginInput input) {
+        UserData user = database.getUserData(input.username());
         if (user != null) {
-            if (user.password().equals(password)) {
-                String authToken = database.addAuth(username);
-                return new HashMap<>(Map.of(username, authToken));
+            if (user.password().equals(input.password())) {
+                String authToken = database.addAuth(input.username());
+                return new LoginResult(input.username(), authToken);
             } else {
                 throw new UnauthorizedException("Error: unauthorized");
             }
@@ -62,10 +60,10 @@ public class Services {
         }
     }
 
-    public int createGame(String authToken, String gameName) {
+    public CreateGameResult createGame(String authToken, CreateGameInput input) {
         UserData user = database.verifyUser(authToken);
         if (user != null) {
-            return database.createGame(gameName);
+            return new CreateGameResult(database.createGame(input.gameName()));
         } else {
             throw new UnauthorizedException("Error: unauthorized");
         }
@@ -79,12 +77,14 @@ public class Services {
                 if (color == ChessGame.TeamColor.WHITE) {
                     if (game.whiteUsername() == null) {
                         game = game.addUser(color, user);
+                        database.updateGame(game);
                     } else {
                         throw new AlreadyTakenException("Error: Already Taken");
                     }
                 } else {
                     if (game.blackUsername() == null) {
                         game = game.addUser(color, user);
+                        database.updateGame(game);
                     } else {
                         throw new AlreadyTakenException("Error: Already Taken");
                     }
