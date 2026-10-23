@@ -35,7 +35,19 @@ public class Server {
         try {
             String json = ctx.body();
             Gson gson = new Gson();
-            RegisterUserInput input = gson.fromJson(json, RegisterUserInput.class);
+            RegisterUserInput input = null;
+            try {
+                input = gson.fromJson(json, RegisterUserInput.class);
+            } catch (Exception e) {
+                ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+                return;
+            }
+
+            if (input.username() == null || input.password() == null || input.email() == null) {
+                ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+                return;
+            }
+
             RegisterUserResult result = services.registerUser(input);
             ctx.status(200).result(gson.toJson(result));
         } catch (AlreadyTakenException e) {
@@ -56,7 +68,14 @@ public class Server {
             input = gson.fromJson(json, LoginInput.class);
         } catch (Exception e) {
             ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            return;
         }
+
+        if (input.username() == null || input.password() == null) {
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            return;
+        }
+
         try {
             LoginResult result = services.loginUser(input);
             ctx.status(200).result(gson.toJson(result));
@@ -65,7 +84,7 @@ public class Server {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
 
         } catch (NotFoundException e) {
-            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: bad request")));
 
         }
     }
@@ -84,10 +103,19 @@ public class Server {
             ArrayList<GameData> gameList = services.listGames(ctx.header("authorization"));
             ArrayList mappedGames = new ArrayList();
             for (GameData game : gameList) {
+                String white = "";
+                String black = "";
+                if (game.whiteUsername() != null) {
+                    white = game.whiteUsername().username();
+                }
+                if (game.blackUsername() != null) {
+                    black = game.blackUsername().username();
+                }
+
                 mappedGames.add(Map.of(
                         "gameId", game.gameID(),
-                        "whiteUsername", game.whiteUsername().username(),
-                        "blackUsername", game.blackUsername().username(),
+                        "whiteUsername", white,
+                        "blackUsername", black,
                         "gameName", game.name()
                 ));
             }
@@ -106,8 +134,13 @@ public class Server {
             input = gson.fromJson(json, CreateGameInput.class);
         } catch (Exception e) {
             ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            return;
         }
 
+        if (input.gameName() == null) {
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            return;
+        }
 
         try {
             CreateGameResult result = services.createGame(ctx.header("authorization"), input);
@@ -118,32 +151,33 @@ public class Server {
     }
 
     private static void joinGame(Context ctx) {
-        HashMap<String, String> body = ctx.bodyAsClass(HashMap.class);
-        String colorString = body.get("playerColor");
-        ChessGame.TeamColor color;
-        if (colorString == "WHITE") {
-            color = ChessGame.TeamColor.WHITE;
-        } else {
-            color = ChessGame.TeamColor.BLACK;
+
+        String json = ctx.body();
+        Gson gson = new Gson();
+        JoinGameInput input = null;
+        try {
+            input = gson.fromJson(json, JoinGameInput.class);
+        } catch (Exception e) {
+            ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            return;
         }
 
-        int gameID = 0;
-        if (body.get("gameID") != null) {
-            gameID = Integer.valueOf(body.get("gameID"));
-        } else {
+        if (input.color() == null) {
             ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            return;
         }
 
         try {
-            services.joinGame(ctx.header("authorization"), gameID, color);
+            services.joinGame(ctx.header("authorization"), input);
             ctx.status(200);
         } catch (AlreadyTakenException e) {
-            ctx.status(403);
-            ctx.result(new Gson().toJson(Map.of("message", "Error: already taken")));
+            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: already taken")));
         } catch (NotFoundException e) {
             ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        } catch (ForbiddenException f) {
+            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: Not valid color")));
         }
     }
 

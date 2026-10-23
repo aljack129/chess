@@ -69,25 +69,27 @@ public class Services {
         }
     }
 
-    public void joinGame(String authToken, int gameID, ChessGame.TeamColor color) {
+    public void joinGame(String authToken, JoinGameInput input) {
         UserData user = database.verifyUser(authToken);
         if (user != null) {
-            GameData game = database.findGame(gameID);
+            GameData game = database.findGame(input.gameID());
             if (game != null) {
-                if (color == ChessGame.TeamColor.WHITE) {
+                if (input.color() == ChessGame.TeamColor.WHITE) {
                     if (game.whiteUsername() == null) {
-                        game = game.addUser(color, user);
+                        game = game.addUser(input.color(), user);
+                        database.updateGame(game);
+                    } else {
+                        throw new AlreadyTakenException("Error: Already Taken");
+                    }
+                } else if (input.color() == ChessGame.TeamColor.BLACK) {
+                    if (game.blackUsername() == null) {
+                        game = game.addUser(input.color(), user);
                         database.updateGame(game);
                     } else {
                         throw new AlreadyTakenException("Error: Already Taken");
                     }
                 } else {
-                    if (game.blackUsername() == null) {
-                        game = game.addUser(color, user);
-                        database.updateGame(game);
-                    } else {
-                        throw new AlreadyTakenException("Error: Already Taken");
-                    }
+                    throw new ForbiddenException("Error: Forbidden");
                 }
             } else {
                 throw new NotFoundException("Error: bad request");

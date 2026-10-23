@@ -145,7 +145,7 @@ public class ServiceTests {
 
         database.createUser("admin", "adminpassword", "admin.net");
         String authToken = database.addAuth("admin");
-        services.joinGame(authToken, gameID1, ChessGame.TeamColor.WHITE);
+        services.joinGame(authToken, new JoinGameInput(gameID1, ChessGame.TeamColor.WHITE));
 
         database2.createUser("admin", "adminpassword", "admin.net");
         UserData user = database2.getUserData("admin");
@@ -155,13 +155,13 @@ public class ServiceTests {
 
         assertEquals(database2.findGame(gameID2), database.findGame(gameID1));
 
-        assertThrows(UnauthorizedException.class, () -> services.joinGame("Batman", 1, ChessGame.TeamColor.BLACK));
+        assertThrows(UnauthorizedException.class, () -> services.joinGame("Batman", new JoinGameInput(1, ChessGame.TeamColor.BLACK)));
 
-        assertThrows(NotFoundException.class, () -> services.joinGame(authToken, 2026, ChessGame.TeamColor.WHITE));
+        assertThrows(NotFoundException.class, () -> services.joinGame(authToken, new JoinGameInput(2026, ChessGame.TeamColor.WHITE)));
 
         database.createUser("cool", "so cool", "coolest");
         String auth2 = database.addAuth("cool");
-        assertThrows(AlreadyTakenException.class, () -> services.joinGame(auth2, gameID1, ChessGame.TeamColor.WHITE));
+        assertThrows(AlreadyTakenException.class, () -> services.joinGame(auth2, new JoinGameInput(gameID1, ChessGame.TeamColor.WHITE)));
 
     }
 }
