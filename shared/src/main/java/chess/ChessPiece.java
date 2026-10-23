@@ -151,7 +151,7 @@ public class ChessPiece {
                 } else if (type == ChessPiece.PieceType.BISHOP) {
                     directions = new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
                 } else if (type == ChessPiece.PieceType.QUEEN) {
-                    directions = new int[][]{{1, 1}, {-1, 1}, {1, -1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+                    directions = new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
                 }
 
                 if (currentDir == null) {
