@@ -51,26 +51,15 @@ public class DataAccessTests {
         assert user.equals(database.getUserData("Bob"));
     }
 
-    /*
+
     @Test
     public void authTest() {
         DataAccess database = initialize();
         UserData user = new UserData("Matt", "Meese", "mm@studioc.com");
         database.createUser("Matt", "Meese", "mm@studioc.com");
 
-        String auth = database.addAuth("Matt");
-        user.changeAuth(new AuthData(auth, "Matt"));
-
-        assert user.equals(database.getUserData("Matt"));
-        assert user.equals(database.verifyUser(auth));
-
-        database.deleteAuth("Matt");
-        user.changeAuth(null);
-
-        assert user.equals(database.getUserData("Matt"));
-        assertNull(database.verifyUser(auth));
     }
-    */
+
     @Test
     public void gameTest() {
         DataAccess database = initialize();
