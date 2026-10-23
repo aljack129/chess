@@ -2,5 +2,5 @@ package model;
 
 import chess.ChessGame;
 
-public record JoinGameInput(int gameID, ChessGame.TeamColor color) {
+public record JoinGameInput(int gameID, ChessGame.TeamColor playerColor) {
 }

@@ -101,25 +101,8 @@ public class Server {
     private static void listGames(Context ctx) {
         try {
             ArrayList<GameData> gameList = services.listGames(ctx.header("authorization"));
-            ArrayList mappedGames = new ArrayList();
-            for (GameData game : gameList) {
-                String white = "";
-                String black = "";
-                if (game.whiteUsername() != null) {
-                    white = game.whiteUsername().username();
-                }
-                if (game.blackUsername() != null) {
-                    black = game.blackUsername().username();
-                }
 
-                mappedGames.add(Map.of(
-                        "gameId", game.gameID(),
-                        "whiteUsername", white,
-                        "blackUsername", black,
-                        "gameName", game.name()
-                ));
-            }
-            ctx.result(new Gson().toJson(Map.of("games", mappedGames)));
+            ctx.result(new Gson().toJson(Map.of("games", gameList)));
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         }
@@ -162,7 +145,7 @@ public class Server {
             return;
         }
 
-        if (input.color() == null) {
+        if (input == null || input.playerColor() == null) {
             ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
             return;
         }
@@ -176,8 +159,6 @@ public class Server {
             ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
-        } catch (ForbiddenException f) {
-            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: Not valid color")));
         }
     }
 

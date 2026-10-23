@@ -74,16 +74,16 @@ public class Services {
         if (user != null) {
             GameData game = database.findGame(input.gameID());
             if (game != null) {
-                if (input.color() == ChessGame.TeamColor.WHITE) {
+                if (input.playerColor() == ChessGame.TeamColor.WHITE) {
                     if (game.whiteUsername() == null) {
-                        game = game.addUser(input.color(), user);
+                        game = game.addUser(input.playerColor(), user);
                         database.updateGame(game);
                     } else {
                         throw new AlreadyTakenException("Error: Already Taken");
                     }
-                } else if (input.color() == ChessGame.TeamColor.BLACK) {
+                } else if (input.playerColor() == ChessGame.TeamColor.BLACK) {
                     if (game.blackUsername() == null) {
-                        game = game.addUser(input.color(), user);
+                        game = game.addUser(input.playerColor(), user);
                         database.updateGame(game);
                     } else {
                         throw new AlreadyTakenException("Error: Already Taken");
