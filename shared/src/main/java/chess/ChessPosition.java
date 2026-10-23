@@ -19,20 +19,26 @@ public class ChessPosition {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("[%d, %d]", row, col);
     }
 
     @Override
-    public boolean equals(Object spot){
-        if (this == spot) return true;
-        if (spot == null || this.getClass() != spot.getClass()) return false;
+    public boolean equals(Object spot) {
+        if (this == spot) {
+            return true;
+        }
+        ;
+        if (spot == null || this.getClass() != spot.getClass()) {
+            return false;
+        }
+        ;
         ChessPosition that = (ChessPosition) spot;
         return row == that.getRow() && col == that.getColumn();
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return 23 * Objects.hash(row, col);
     }
 

@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -113,7 +112,7 @@ public class ChessPiece {
 
                     if (type == ChessPiece.PieceType.KNIGHT) {
                         directions = new int[][]{{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {-2, 1}, {2, -1}, {-2, -1}};
-                    } else if (type == ChessPiece.PieceType.KING) {
+                    } else {
                         directions = new int[][]{{1, 1}, {-1, 1}, {1, -1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
                     }
 
@@ -127,59 +126,7 @@ public class ChessPiece {
                 }
                 //if piece is a pawn
                 else {
-                    int dir;
-                    int promoLine;
-                    int init;
-                    directions = new int[][]{{1, 1}, {1, -1}};
-                    ChessPiece.PieceType[] promos = {
-                            ChessPiece.PieceType.QUEEN,
-                            ChessPiece.PieceType.ROOK,
-                            ChessPiece.PieceType.BISHOP,
-                            ChessPiece.PieceType.KNIGHT
-                    };
-
-                    if (color == ChessGame.TeamColor.BLACK) {
-                        dir = -1;
-                        promoLine = 1;
-                        init = 7;
-                    } else {
-                        dir = 1;
-                        promoLine = 8;
-                        init = 2;
-                    }
-
-                    //moving straight forward
-                    ChessPosition newSpot = new ChessPosition(spot.getRow() + 1 * dir, spot.getColumn());
-                    if (board.validSpot(newSpot) && board.getPiece(newSpot) == null) {
-                        if (newSpot.getRow() == promoLine) {
-                            for (ChessPiece.PieceType p : promos) {
-                                moves.add(new ChessMove(start, newSpot, p));
-                            }
-                        } else if (start.getRow() == init) {
-                            moves.add(new ChessMove(start, newSpot, null));
-                            newSpot = new ChessPosition(spot.getRow() + 2 * dir, spot.getColumn());
-                            if (board.validSpot(newSpot) && board.getPiece(newSpot) == null) {
-                                moves.add(new ChessMove(start, newSpot, null));
-                            }
-                        } else {
-                            moves.add(new ChessMove(start, newSpot, null));
-                        }
-                    }
-
-                    //moving diagonally
-                    for (int[] d : directions) {
-                        newSpot = new ChessPosition(spot.getRow() + d[0] * dir, spot.getColumn() + d[1]);
-                        if (board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))) {
-                            if (newSpot.getRow() == promoLine) {
-                                for (ChessPiece.PieceType p : promos) {
-                                    moves.add(new ChessMove(start, newSpot, p));
-                                }
-                            } else {
-                                moves.add(new ChessMove(start, newSpot, null));
-                            }
-                        }
-                    }
-                    return;
+                    pawnFindMoves(start, spot, board, moves);
                 }
             }
             //if spot has a piece in it and is not at start
@@ -236,6 +183,63 @@ public class ChessPiece {
         }
 
     }
+
+    private void pawnFindMoves(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves) {
+        int dir;
+        int promoLine;
+        int init;
+        int[][] directions = new int[][]{{1, 1}, {1, -1}};
+        ChessPiece.PieceType[] promos = {
+                ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.ROOK,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT
+        };
+
+        if (color == ChessGame.TeamColor.BLACK) {
+            dir = -1;
+            promoLine = 1;
+            init = 7;
+        } else {
+            dir = 1;
+            promoLine = 8;
+            init = 2;
+        }
+
+        //moving straight forward
+        ChessPosition newSpot = new ChessPosition(spot.getRow() + 1 * dir, spot.getColumn());
+        if (board.validSpot(newSpot) && board.getPiece(newSpot) == null) {
+            if (newSpot.getRow() == promoLine) {
+                for (ChessPiece.PieceType p : promos) {
+                    moves.add(new ChessMove(start, newSpot, p));
+                }
+            } else if (start.getRow() == init) {
+                moves.add(new ChessMove(start, newSpot, null));
+                newSpot = new ChessPosition(spot.getRow() + 2 * dir, spot.getColumn());
+                if (board.validSpot(newSpot) && board.getPiece(newSpot) == null) {
+                    moves.add(new ChessMove(start, newSpot, null));
+                }
+            } else {
+                moves.add(new ChessMove(start, newSpot, null));
+            }
+        }
+
+        //moving diagonally
+        for (int[] d : directions) {
+            newSpot = new ChessPosition(spot.getRow() + d[0] * dir, spot.getColumn() + d[1]);
+            if (board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))) {
+                if (newSpot.getRow() == promoLine) {
+                    for (ChessPiece.PieceType p : promos) {
+                        moves.add(new ChessMove(start, newSpot, p));
+                    }
+                } else {
+                    moves.add(new ChessMove(start, newSpot, null));
+                }
+            }
+        }
+        return;
+    }
+
 
     private boolean canCapture(ChessPiece o) {
         if (o.getTeamColor() == color) {
