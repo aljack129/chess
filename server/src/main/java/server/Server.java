@@ -15,7 +15,7 @@ import java.util.Map;
 public class Server {
 
     private final Javalin javalin;
-    private static final Services services = new Services(new MemoryDataAccess());
+    private static Services services = new Services(new MemoryDataAccess());
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));

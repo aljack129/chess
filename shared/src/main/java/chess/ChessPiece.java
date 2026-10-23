@@ -34,16 +34,15 @@ public class ChessPiece {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String represent;
-        if(type == PieceType.KNIGHT){
+        if (type == PieceType.KNIGHT) {
             represent = "N";
-        }
-        else {
+        } else {
             char firstChar = type.name().charAt(0);
             represent = String.valueOf(firstChar);
         }
-        if (color == ChessGame.TeamColor.BLACK){
+        if (color == ChessGame.TeamColor.BLACK) {
             represent = represent.toLowerCase();
         }
         return represent;
@@ -51,17 +50,20 @@ public class ChessPiece {
 
 
     @Override
-    public boolean equals(Object piece){
-        if (this == piece) return true;
-        if (piece == null || this.getClass() != piece.getClass()) return false;
+    public boolean equals(Object piece) {
+        if (this == piece) {
+            return true;
+        }
+        if (piece == null || this.getClass() != piece.getClass()) {
+            return false;
+        }
         ChessPiece that = (ChessPiece) piece;
         return type.equals(that.getPieceType()) && color.equals(that.getTeamColor());
     }
 
 
-
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return 23 * Objects.hash(type, color);
     }
 
@@ -92,73 +94,55 @@ public class ChessPiece {
         return moves;
     }
 
-    private void findMoves(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves, int[] currentDir){
+    private void findMoves(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves, int[] currentDir) {
         //if still on board
-        if(board.validSpot(spot)){
+        if (board.validSpot(spot)) {
             // if starting, or on empty spot
-            if(start == spot || board.getPiece(spot) == null){
+            if (start == spot || board.getPiece(spot) == null) {
                 int[][] directions = {{}};
                 //if the piece is sliding
-                if(board.getPiece(spot) == null){
+                if (board.getPiece(spot) == null) {
                     moves.add(new ChessMove(start, spot, null));
                 }
 
-                if(type == ChessPiece.PieceType.ROOK || type == ChessPiece.PieceType.QUEEN || type == ChessPiece.PieceType.BISHOP){
-
-                    if(type == ChessPiece.PieceType.ROOK){
-                        directions = new int[][] {{1,0}, {-1,0}, {0,1}, {0,-1}};
-                    }
-                    else if(type == ChessPiece.PieceType.BISHOP){
-                        directions = new int[][] {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
-                    }
-                    else if(type == ChessPiece.PieceType.QUEEN){
-                        directions = new int[][] {{1,1}, {-1,1}, {1,-1}, {-1,-1}, {1,0}, {-1,0}, {0,1}, {0,-1}};
-                    }
-
-                    if(currentDir == null){
-                        for(int[] dir : directions){
-                            ChessPosition newSpot = new ChessPosition(start.getRow() + dir[0], start.getColumn() + dir[1]);
-                            findMoves(start, newSpot, board, moves, dir);
-                        }
-                    }
-                    else{
-                        ChessPosition newSpot = new ChessPosition(spot.getRow() + currentDir[0], spot.getColumn() + currentDir[1]);
-                        findMoves(start, newSpot, board, moves, currentDir);
-                    }
-
+                if (type == ChessPiece.PieceType.ROOK || type == ChessPiece.PieceType.QUEEN || type == ChessPiece.PieceType.BISHOP) {
+                    recursiveFindMoves(start, spot, board, moves, currentDir);
                 }
                 //if piece is checking only one space in given directions and is not a pawn
-                else if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT){
+                else if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT) {
 
-                    if(type == ChessPiece.PieceType.KNIGHT){
-                        directions = new int[][] {{1,2}, {-1,2}, {1,-2}, {-1,-2}, {2,1}, {-2,1}, {2,-1}, {-2,-1}};
-                    }
-                    else if(type == ChessPiece.PieceType.KING){
-                        directions = new int[][] {{1,1}, {-1,1}, {1,-1}, {-1,-1}, {1,0}, {-1,0}, {0,1}, {0,-1}};
+                    if (type == ChessPiece.PieceType.KNIGHT) {
+                        directions = new int[][]{{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {-2, 1}, {2, -1}, {-2, -1}};
+                    } else if (type == ChessPiece.PieceType.KING) {
+                        directions = new int[][]{{1, 1}, {-1, 1}, {1, -1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
                     }
 
-                    for(int[] dir : directions){
+                    for (int[] dir : directions) {
                         ChessPosition newSpot = new ChessPosition(start.getRow() + dir[0], start.getColumn() + dir[1]);
-                        if(board.validSpot(newSpot) && (board.getPiece(newSpot) == null || canCapture(board.getPiece(newSpot)))){
+                        if (board.validSpot(newSpot) && (board.getPiece(newSpot) == null || canCapture(board.getPiece(newSpot)))) {
                             moves.add(new ChessMove(start, newSpot, null));
                         }
                     }
                     return;
                 }
                 //if piece is a pawn
-                else{
+                else {
                     int dir;
                     int promoLine;
                     int init;
-                    directions = new int[][] {{1,1}, {1,-1}};
-                    ChessPiece.PieceType[] promos = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT};
+                    directions = new int[][]{{1, 1}, {1, -1}};
+                    ChessPiece.PieceType[] promos = {
+                            ChessPiece.PieceType.QUEEN,
+                            ChessPiece.PieceType.ROOK,
+                            ChessPiece.PieceType.BISHOP,
+                            ChessPiece.PieceType.KNIGHT
+                    };
 
-                    if(color == ChessGame.TeamColor.BLACK){
+                    if (color == ChessGame.TeamColor.BLACK) {
                         dir = -1;
                         promoLine = 1;
                         init = 7;
-                    }
-                    else{
+                    } else {
                         dir = 1;
                         promoLine = 8;
                         init = 2;
@@ -166,34 +150,31 @@ public class ChessPiece {
 
                     //moving straight forward
                     ChessPosition newSpot = new ChessPosition(spot.getRow() + 1 * dir, spot.getColumn());
-                    if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
-                        if(newSpot.getRow() == promoLine){
-                            for (ChessPiece.PieceType p : promos){
+                    if (board.validSpot(newSpot) && board.getPiece(newSpot) == null) {
+                        if (newSpot.getRow() == promoLine) {
+                            for (ChessPiece.PieceType p : promos) {
                                 moves.add(new ChessMove(start, newSpot, p));
                             }
-                        }
-                        else if(start.getRow() == init){
+                        } else if (start.getRow() == init) {
                             moves.add(new ChessMove(start, newSpot, null));
                             newSpot = new ChessPosition(spot.getRow() + 2 * dir, spot.getColumn());
-                            if(board.validSpot(newSpot) && board.getPiece(newSpot) == null){
+                            if (board.validSpot(newSpot) && board.getPiece(newSpot) == null) {
                                 moves.add(new ChessMove(start, newSpot, null));
                             }
-                        }
-                        else {
+                        } else {
                             moves.add(new ChessMove(start, newSpot, null));
                         }
                     }
 
                     //moving diagonally
-                    for(int[] d : directions){
+                    for (int[] d : directions) {
                         newSpot = new ChessPosition(spot.getRow() + d[0] * dir, spot.getColumn() + d[1]);
-                        if(board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))){
-                            if(newSpot.getRow() == promoLine){
-                                for (ChessPiece.PieceType p : promos){
+                        if (board.validSpot(newSpot) && board.getPiece(newSpot) != null && canCapture(board.getPiece(newSpot))) {
+                            if (newSpot.getRow() == promoLine) {
+                                for (ChessPiece.PieceType p : promos) {
                                     moves.add(new ChessMove(start, newSpot, p));
                                 }
-                            }
-                            else {
+                            } else {
                                 moves.add(new ChessMove(start, newSpot, null));
                             }
                         }
@@ -202,24 +183,64 @@ public class ChessPiece {
                 }
             }
             //if spot has a piece in it and is not at start
-            else{
-                if(canCapture(board.getPiece(spot))){
+            else {
+                if (canCapture(board.getPiece(spot))) {
                     moves.add(new ChessMove(start, spot, null));
                 }
                 return;
             }
         }
         //if recursed off of board
-        else{
+        else {
             return;
         }
     }
 
-    private boolean canCapture(ChessPiece o){
-        if(o.getTeamColor() == color){
-            return false;
+    private void recursiveFindMoves(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves, int[] currentDir) {
+        if (board.validSpot(spot)) {
+            // if starting, or on empty spot
+            if (start == spot || board.getPiece(spot) == null) {
+                int[][] directions = {{}};
+                //if the piece is sliding
+                if (board.getPiece(spot) == null) {
+                    moves.add(new ChessMove(start, spot, null));
+                }
+
+                if (type == ChessPiece.PieceType.ROOK) {
+                    directions = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+                } else if (type == ChessPiece.PieceType.BISHOP) {
+                    directions = new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+                } else if (type == ChessPiece.PieceType.QUEEN) {
+                    directions = new int[][]{{1, 1}, {-1, 1}, {1, -1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+                }
+
+                if (currentDir == null) {
+                    for (int[] dir : directions) {
+                        ChessPosition newSpot = new ChessPosition(start.getRow() + dir[0], start.getColumn() + dir[1]);
+                        recursiveFindMoves(start, newSpot, board, moves, dir);
+                    }
+                } else {
+                    ChessPosition newSpot = new ChessPosition(spot.getRow() + currentDir[0], spot.getColumn() + currentDir[1]);
+                    recursiveFindMoves(start, newSpot, board, moves, currentDir);
+                }
+            } else {
+                if (canCapture(board.getPiece(spot))) {
+                    moves.add(new ChessMove(start, spot, null));
+                }
+                return;
+            }
         }
-        else{
+        //if recursed off of board
+        else {
+            return;
+        }
+
+    }
+
+    private boolean canCapture(ChessPiece o) {
+        if (o.getTeamColor() == color) {
+            return false;
+        } else {
             return true;
         }
     }
