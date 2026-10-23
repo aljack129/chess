@@ -94,51 +94,44 @@ public class ChessPiece {
     }
 
     private void findMoves(ChessPosition start, ChessPosition spot, ChessBoard board, Collection<ChessMove> moves, int[] currentDir) {
-        //if still on board
-        if (board.validSpot(spot)) {
-            // if starting, or on empty spot
-            if (start == spot || board.getPiece(spot) == null) {
-                int[][] directions = {{}};
-                //if the piece is sliding
-                if (board.getPiece(spot) == null) {
-                    moves.add(new ChessMove(start, spot, null));
-                }
-
-                if (type == ChessPiece.PieceType.ROOK || type == ChessPiece.PieceType.QUEEN || type == ChessPiece.PieceType.BISHOP) {
-                    recursiveFindMoves(start, spot, board, moves, currentDir);
-                }
-                //if piece is checking only one space in given directions and is not a pawn
-                else if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT) {
-
-                    if (type == ChessPiece.PieceType.KNIGHT) {
-                        directions = new int[][]{{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {-2, 1}, {2, -1}, {-2, -1}};
-                    } else {
-                        directions = new int[][]{{1, 1}, {-1, 1}, {1, -1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-                    }
-
-                    for (int[] dir : directions) {
-                        ChessPosition newSpot = new ChessPosition(start.getRow() + dir[0], start.getColumn() + dir[1]);
-                        if (board.validSpot(newSpot) && (board.getPiece(newSpot) == null || canCapture(board.getPiece(newSpot)))) {
-                            moves.add(new ChessMove(start, newSpot, null));
-                        }
-                    }
-                    return;
-                }
-                //if piece is a pawn
-                else {
-                    pawnFindMoves(start, spot, board, moves);
-                }
+        // if starting, or on empty spot
+        if (start == spot || board.getPiece(spot) == null) {
+            int[][] directions = {{}};
+            //if the piece is sliding
+            if (board.getPiece(spot) == null) {
+                moves.add(new ChessMove(start, spot, null));
             }
-            //if spot has a piece in it and is not at start
-            else {
-                if (canCapture(board.getPiece(spot))) {
-                    moves.add(new ChessMove(start, spot, null));
+
+            if (type == ChessPiece.PieceType.ROOK || type == ChessPiece.PieceType.QUEEN || type == ChessPiece.PieceType.BISHOP) {
+                recursiveFindMoves(start, spot, board, moves, currentDir);
+            }
+            //if piece is checking only one space in given directions and is not a pawn
+            else if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT) {
+
+                if (type == ChessPiece.PieceType.KNIGHT) {
+                    directions = new int[][]{{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {-2, 1}, {2, -1}, {-2, -1}};
+                } else {
+                    directions = new int[][]{{1, 1}, {-1, 1}, {1, -1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+                }
+
+                for (int[] dir : directions) {
+                    ChessPosition newSpot = new ChessPosition(start.getRow() + dir[0], start.getColumn() + dir[1]);
+                    if (board.validSpot(newSpot) && (board.getPiece(newSpot) == null || canCapture(board.getPiece(newSpot)))) {
+                        moves.add(new ChessMove(start, newSpot, null));
+                    }
                 }
                 return;
             }
+            //if piece is a pawn
+            else {
+                pawnFindMoves(start, spot, board, moves);
+            }
         }
-        //if recursed off of board
+        //if spot has a piece in it and is not at start
         else {
+            if (canCapture(board.getPiece(spot))) {
+                moves.add(new ChessMove(start, spot, null));
+            }
             return;
         }
     }
