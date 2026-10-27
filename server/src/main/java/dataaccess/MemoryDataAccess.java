@@ -14,7 +14,6 @@ public class MemoryDataAccess implements DataAccess {
     private Map<Integer, GameData> games = new HashMap<>();
 
     public MemoryDataAccess() {
-
     }
 
     @Override

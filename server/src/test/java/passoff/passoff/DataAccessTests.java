@@ -58,6 +58,13 @@ public class DataAccessTests {
         UserData user = new UserData("Matt", "Meese", "mm@studioc.com");
         database.createUser("Matt", "Meese", "mm@studioc.com");
 
+        String authToken = database.addAuth("Matt");
+        assertEquals(user, database.verifyUser(authToken));
+        assertNotEquals(new UserData("Matt", "Meese", "kittens"), database.verifyUser(authToken));
+
+        database.deleteAuth(authToken);
+        assertEquals(null, database.verifyUser(authToken));
+        assertNotEquals(user, database.verifyUser(authToken));
     }
 
     @Test
