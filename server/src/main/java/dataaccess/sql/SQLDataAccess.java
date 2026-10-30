@@ -39,12 +39,22 @@ public class SQLDataAccess implements DataAccess {
     @Override
     public int gameSize() {
         var statement = "SELECT count(*) AS row_count FROM games";
+        try {
+            return executeUpdate(statement);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
 
     @Override
     public int authSize() {
         var statement = "SELECT count(*) AS row_count FROM authorized";
+        try {
+            return executeUpdate(statement);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     @Override
