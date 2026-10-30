@@ -59,6 +59,14 @@ public class SQLDataAccess implements DataAccess {
 
     @Override
     public void createUser(String username, String password, String email) {
+        var statement = "INSERT INTO users(username, password, email, json) VALUES(?, ?, ?, ?)";
+        UserData user = new UserData(username, password, email);
+        String json = new Gson().toJson(user);
+        try {
+            executeUpdate(statement, username, password, email, json);
+        } catch (Exception e) {
+
+        }
     }
 
     @Override
