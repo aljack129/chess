@@ -14,21 +14,21 @@ public interface DataAccess {
 
     int authSize();
 
-    void createUser(String username, String password, String email);
+    void createUser(String username, String password, String email) throws DataAccessException;
 
-    UserData getUserData(String username);
+    UserData getUserData(String username) throws DataAccessException;
 
-    String addAuth(String username);
+    String addAuth(String username) throws DataAccessException;
 
-    void deleteAuth(String authToken);
+    void deleteAuth(String authToken) throws DataAccessException;
 
-    UserData verifyUser(String authToken);
+    UserData verifyUser(String authToken) throws DataAccessException;
 
-    int createGame(String name);
+    int createGame(String name) throws DataAccessException;
 
-    ArrayList getGames();
+    ArrayList getGames() throws DataAccessException;
 
-    GameData findGame(int gameID);
+    GameData findGame(int gameID) throws DataAccessException;
 
-    void updateGame(GameData game);
+    void updateGame(GameData game) throws DataAccessException;
 }
