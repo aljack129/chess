@@ -47,9 +47,13 @@ public class Server {
                 ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
                 return;
             }
-
-            RegisterUserResult result = services.registerUser(input);
-            ctx.status(200).result(gson.toJson(result));
+            try {
+                RegisterUserResult result = services.registerUser(input);
+                ctx.status(200).result(gson.toJson(result));
+            } catch (DataAccessException d) {
+                ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data not found")));
+                return;
+            }
         } catch (AlreadyTakenException e) {
             ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: already taken")));
         }
@@ -86,6 +90,8 @@ public class Server {
         } catch (NotFoundException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: bad request")));
 
+        } catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -95,6 +101,8 @@ public class Server {
             ctx.status(200);
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        } catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -105,6 +113,8 @@ public class Server {
             ctx.result(new Gson().toJson(Map.of("games", gameList)));
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        } catch (DataAccessException d) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -130,6 +140,8 @@ public class Server {
             ctx.result(gson.toJson(result));
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        } catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -159,6 +171,8 @@ public class Server {
             ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        } catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
