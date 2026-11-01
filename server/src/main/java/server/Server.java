@@ -18,11 +18,11 @@ public class Server {
     private final Javalin javalin;
     private static Services services;
 
-    public Server() throws DataAccessException {
+    public Server() {
         try {
             services = new Services(new SQLDataAccess());
         } catch (DataAccessException e) {
-            throw new DataAccessException("Database not built");
+            System.out.print("Database not built");
         }
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
