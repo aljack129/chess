@@ -3,6 +3,7 @@ package server;
 import chess.*;
 import com.google.gson.Gson;
 import dataaccess.*;
+import dataaccess.sql.SQLDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.*;
@@ -15,9 +16,15 @@ import java.util.Map;
 public class Server {
 
     private final Javalin javalin;
-    private static Services services = new Services(new MemoryDataAccess());
+    private static Services services;
 
-    public Server() {
+    public Server() throws DataAccessException {
+        try {
+            services = new Services(new SQLDataAccess());
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Database not built");
+        }
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
