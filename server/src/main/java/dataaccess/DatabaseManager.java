@@ -4,10 +4,10 @@ import java.sql.*;
 import java.util.Properties;
 
 public class DatabaseManager {
-    private static String databaseName;
-    private static String dbUsername;
-    private static String dbPassword;
-    private static String connectionUrl;
+    private static String databaseName = "chess";
+    private static String dbUsername = "chessqueen";
+    private static String dbPassword = "mathgirl";
+    private static String connectionUrl = "jdbc:mysql://localhost:3306/chess?useSSL=false&allowPublicKeyRetrieval=true";
 
     /*
      * Load the database information for the db.properties file.
