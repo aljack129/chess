@@ -16,6 +16,7 @@ public class DataAccessTests {
     private DataAccess initialize() throws DataAccessException {
         try {
             DataAccess database = new SQLDataAccess();
+            database.clear();
             database.createUser("user1", "carrot", "user1@email.com");
             database.createUser("user2", "carrot", "user2@email.com");
             database.createUser("user3", "carrot", "user3@email.com");
@@ -100,6 +101,14 @@ public class DataAccessTests {
             database.createGame("game4");
 
             assert games.equals(database.getGames());
+
+            GameData changedGame = new GameData(5, "changedGame", null, null, new ChessGame());
+            database.createGame("changedGame");
+            UserData user = new UserData("mark", "ruffalo", "the hulk");
+            changedGame = changedGame.addUser(ChessGame.TeamColor.BLACK, user);
+            database.updateGame(changedGame);
+
+            assert database.findGame(5).equals(changedGame);
         });
     }
 }

@@ -24,38 +24,73 @@ public class SQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
+        String[] clearStatements = {
+                "DELETE FROM users;",
+                "DELETE FROM authorized;",
+                "DELETE FROM games;"
+        };
+        try (Connection conn = DatabaseManager.getConnection()) {
+            for (String statement : clearStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("database couldn't configure");
+        }
     }
 
     @Override
     public int userSize() {
         var statement = "SELECT count(*) AS row_count FROM users";
-        try {
-            return executeUpdate(statement);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt("row_count");
+                    }
+                }
+            }
         } catch (Exception e) {
             return -1;
         }
+        return -1;
     }
 
     @Override
     public int gameSize() {
         var statement = "SELECT count(*) AS row_count FROM games";
-        try {
-            return executeUpdate(statement);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt("row_count");
+                    }
+                }
+            }
         } catch (Exception e) {
             return -1;
         }
+        return -1;
     }
 
 
     @Override
     public int authSize() {
         var statement = "SELECT count(*) AS row_count FROM authorized";
-        try {
-            return executeUpdate(statement);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt("row_count");
+                    }
+                }
+            }
         } catch (Exception e) {
             return -1;
         }
+        return -1;
     }
 
     @Override
@@ -214,6 +249,8 @@ public class SQLDataAccess implements DataAccess {
                         ps.setString(i + 1, p.toString());
                     } else if (param instanceof UserData p) {
                         ps.setString(i + 1, p.toString());
+                    } else if (param instanceof ChessGame p) {
+                        ps.setString(i + 1, new Gson().toJson(p));
                     } else if (param == null) {
                         ps.setNull(i + 1, NULL);
                     }
@@ -233,7 +270,7 @@ public class SQLDataAccess implements DataAccess {
 
     private final String[] createStatements = {
             """
-        CREATE TABLE IF NOT EXISTS: users (
+        CREATE TABLE IF NOT EXISTS users (
             username VARCHAR(256) NOT NULL,
             password VARCHAR(256) NOT NULL,
             email VARCHAR(256)  NOT NULL,
@@ -243,7 +280,7 @@ public class SQLDataAccess implements DataAccess {
         );        
         """,
             """
-           CREATE TABLE IF NOT EXISTS: authorized(
+           CREATE TABLE IF NOT EXISTS authorized(
                 username VARCHAR(256) NOT NULL,
                 authToken VARCHAR(256),
                 json TEXT,
@@ -252,7 +289,7 @@ public class SQLDataAccess implements DataAccess {
            );
            """,
             """
-            CREATE TABLE IF NOT EXISTS: games(
+            CREATE TABLE IF NOT EXISTS games(
                 gameID int NOT NULL AUTO_INCREMENT,
                 gameName varchar(256) NOT NULL,
                 whiteUsername varchar(256) DEFAULT NULL,
