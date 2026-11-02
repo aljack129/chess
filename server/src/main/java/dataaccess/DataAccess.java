@@ -6,7 +6,7 @@ import model.UserData;
 import java.util.ArrayList;
 
 public interface DataAccess {
-    void clear();
+    void clear() throws DataAccessException;
 
     int userSize();
 

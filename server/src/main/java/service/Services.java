@@ -126,7 +126,7 @@ public class Services {
         }
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         database.clear();
     }
 }

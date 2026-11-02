@@ -67,8 +67,12 @@ public class Server {
     }
 
     private static void clear(Context ctx) {
-        services.clear();
-        ctx.status(200);
+        try {
+            services.clear();
+            ctx.status(200);
+        } catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data not found")));
+        }
     }
 
     private static void logIn(Context ctx) {
