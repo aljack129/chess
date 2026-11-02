@@ -26,9 +26,9 @@ public class SQLDataAccess implements DataAccess {
     @Override
     public void clear() throws DataAccessException {
         String[] clearStatements = {
-                "DELETE FROM users;",
-                "DELETE FROM authorized;",
-                "DELETE FROM games;"
+                "TRUNCATE TABLE users;",
+                "TRUNCATE TABLE authorized;",
+                "TRUNCATE TABLE games;"
         };
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : clearStatements) {
