@@ -98,11 +98,7 @@ public class SQLDataAccess implements DataAccess {
         var statement = "INSERT INTO users(username, password, email, json) VALUES(?, ?, ?, ?)";
         UserData user = new UserData(username, password, email);
         String json = new Gson().toJson(user);
-        try {
-            executeUpdate(statement, username, password, email, json);
-        } catch (Exception e) {
-
-        }
+        executeUpdate(statement, username, password, email, json);
     }
 
     @Override
@@ -130,22 +126,14 @@ public class SQLDataAccess implements DataAccess {
         var statement = "INSERT INTO authorized(authToken, username, json) VALUES(?, ?, ?)";
         AuthData auth = new AuthData(null, username).createAuth();
         String json = new Gson().toJson(auth);
-        try {
-            executeUpdate(statement, auth.authToken(), username, json);
-            return auth.authToken();
-        } catch (Exception e) {
-            throw new DataAccessException("database problem");
-        }
+        executeUpdate(statement, auth.authToken(), username, json);
+        return auth.authToken();
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM authorized WHERE authToken=?";
-        try {
-            executeUpdate(statement, authToken);
-        } catch (Exception e) {
-            throw new DataAccessException("database problem");
-        }
+        executeUpdate(statement, authToken);
     }
 
     @Override
@@ -174,14 +162,10 @@ public class SQLDataAccess implements DataAccess {
         var statement = "INSERT INTO games(gameName, game, json) VALUES(?, ?, ?)";
         GameData game = new GameData(0, name, null, null, new ChessGame());
         String json = new Gson().toJson(game);
-        try {
-            int gameID = executeUpdate(statement, name, game.game(), json);
-            game = new GameData(gameID, game.gameName(), null, null, game.game());
-            updateGame(game);
-            return gameID;
-        } catch (Exception e) {
-            throw new DataAccessException("database problem");
-        }
+        int gameID = executeUpdate(statement, name, game.game(), json);
+        game = new GameData(gameID, game.gameName(), null, null, game.game());
+        updateGame(game);
+        return gameID;
     }
 
     @Override
@@ -227,14 +211,10 @@ public class SQLDataAccess implements DataAccess {
     public void updateGame(GameData game) throws DataAccessException {
         var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, game = ?, json = ? WHERE gameID =?";
         String json = new Gson().toJson(game);
-        try {
-            executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.game(), json, game.gameID());
-        } catch (Exception e) {
-            throw new DataAccessException("d");
-        }
+        executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.game(), json, game.gameID());
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException, SQLException {
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -264,6 +244,8 @@ public class SQLDataAccess implements DataAccess {
 
                 return 0;
             }
+        } catch (Exception e) {
+            throw new DataAccessException("database problems");
         }
     }
 

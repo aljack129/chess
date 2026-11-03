@@ -95,31 +95,31 @@ public class Services {
     public void joinGame(String authToken, JoinGameInput input) throws DataAccessException {
         try {
             UserData user = database.verifyUser(authToken);
-            if (user != null) {
-                GameData game = database.findGame(input.gameID());
-                if (game != null) {
-                    if (input.playerColor() == ChessGame.TeamColor.WHITE) {
-                        if (game.whiteUsername() == null) {
-                            game = game.addUser(input.playerColor(), user);
-                            database.updateGame(game);
-                        } else {
-                            throw new AlreadyTakenException("Error: Already Taken");
-                        }
-                    } else if (input.playerColor() == ChessGame.TeamColor.BLACK) {
-                        if (game.blackUsername() == null) {
-                            game = game.addUser(input.playerColor(), user);
-                            database.updateGame(game);
-                        } else {
-                            throw new AlreadyTakenException("Error: Already Taken");
-                        }
+            GameData game = database.findGame(input.gameID());
+            if (user != null && game != null) {
+                if (input.playerColor() == ChessGame.TeamColor.WHITE) {
+                    if (game.whiteUsername() == null) {
+                        game = game.addUser(input.playerColor(), user);
+                        database.updateGame(game);
                     } else {
-                        throw new ForbiddenException("Error: Forbidden");
+                        throw new AlreadyTakenException("Error: Already Taken");
                     }
+                } else if (input.playerColor() == ChessGame.TeamColor.BLACK) {
+                    if (game.blackUsername() == null) {
+                        game = game.addUser(input.playerColor(), user);
+                        database.updateGame(game);
+                    } else {
+                        throw new AlreadyTakenException("Error: Already Taken");
+                    }
+                } else {
+                    throw new ForbiddenException("Error: Forbidden");
+                }
+            } else {
+                if (user == null) {
+                    throw new UnauthorizedException("Error: unauthorized");
                 } else {
                     throw new NotFoundException("Error: bad request");
                 }
-            } else {
-                throw new UnauthorizedException("Error: unauthorized");
             }
         } catch (DataAccessException d) {
             throw new DataAccessException("database problems");
