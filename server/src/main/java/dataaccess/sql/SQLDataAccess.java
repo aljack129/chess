@@ -45,8 +45,8 @@ public class SQLDataAccess implements DataAccess {
     public int userSize() {
         var statement = "SELECT count(*) AS row_count FROM users";
         try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                try (ResultSet rs = ps.executeQuery()) {
+            try (PreparedStatement prepped = conn.prepareStatement(statement)) {
+                try (ResultSet rs = prepped.executeQuery()) {
                     if (rs.next()) {
                         return rs.getInt("row_count");
                     }
@@ -80,8 +80,8 @@ public class SQLDataAccess implements DataAccess {
     public int authSize() {
         var statement = "SELECT count(*) AS row_count FROM authorized";
         try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                try (ResultSet rs = ps.executeQuery()) {
+            try (PreparedStatement preppedStatement = conn.prepareStatement(statement)) {
+                try (ResultSet rs = preppedStatement.executeQuery()) {
                     if (rs.next()) {
                         return rs.getInt("row_count");
                     }
