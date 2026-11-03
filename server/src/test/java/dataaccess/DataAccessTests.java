@@ -23,6 +23,10 @@ public class DataAccessTests {
             database.createUser("user4", "carrot", "user4@email.com");
             database.createUser("user5", "carrot", "user5@email.com");
 
+            database.addAuth("user1");
+            database.addAuth("user2");
+            database.addAuth("user3");
+
             database.createGame("game1");
             database.createGame("game2");
             database.createGame("game3");
@@ -42,9 +46,11 @@ public class DataAccessTests {
             DataAccess database = initialize();
             assert database.userSize() != 0;
             assert database.gameSize() != 0;
+            assert database.authSize() != 0;
             database.clear();
             assert database.userSize() == 0;
             assert database.gameSize() == 0;
+            assert database.authSize() == 0;
         });
     }
 

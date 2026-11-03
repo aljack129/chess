@@ -142,7 +142,7 @@ public class SQLDataAccess implements DataAccess {
     public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM authorized WHERE authToken=?";
         try {
-            executeUpdate(statement);
+            executeUpdate(statement, authToken);
         } catch (Exception e) {
             throw new DataAccessException("database problem");
         }

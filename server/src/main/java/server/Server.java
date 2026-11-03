@@ -58,7 +58,7 @@ public class Server {
                 RegisterUserResult result = services.registerUser(input);
                 ctx.status(200).result(gson.toJson(result));
             } catch (DataAccessException d) {
-                ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data not found")));
+                ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: data not found")));
                 return;
             }
         } catch (AlreadyTakenException e) {
@@ -71,7 +71,7 @@ public class Server {
             services.clear();
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data not found")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: data not found")));
         }
     }
 
@@ -102,7 +102,7 @@ public class Server {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: bad request")));
 
         } catch (DataAccessException e) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -113,7 +113,7 @@ public class Server {
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         } catch (DataAccessException e) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -125,7 +125,7 @@ public class Server {
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         } catch (DataAccessException d) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -152,7 +152,7 @@ public class Server {
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         } catch (DataAccessException e) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 
@@ -183,7 +183,7 @@ public class Server {
         } catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         } catch (DataAccessException e) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: data access")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: data access")));
         }
     }
 

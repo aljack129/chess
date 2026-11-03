@@ -38,7 +38,7 @@ public class Services {
         try {
             UserData user = database.getUserData(input.username());
             if (user != null) {
-                if (BCrypt.checkpw(user.password(), input.password())) {
+                if (BCrypt.checkpw(input.password(), user.password())) {
                     String authToken = database.addAuth(input.username());
                     return new LoginResult(input.username(), authToken);
                 } else {
