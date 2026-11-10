@@ -2,6 +2,8 @@ package ui;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import static ui.EscapeSequences.*;
 
@@ -11,7 +13,7 @@ public class DrawChessBoard {
 
     //Board dimensions
     private static final int BOARD_SIZE_IN_SQUARES = 10;
-    private static final String EMPTY = "   ";
+    //private static final String EMPTY = "   ";
 
 
     public static void main(String[] args) {
@@ -34,9 +36,9 @@ public class DrawChessBoard {
     private static void drawHeadFoot(PrintStream out, ChessGame.TeamColor color) {
         String[] headers = {};
         if (color == ChessGame.TeamColor.BLACK) {
-            headers = new String[]{"   ", " h ", " g ", " f ", " e ", " d ", " c ", " b ", " a ", "   "};
+            headers = new String[]{"   ", "h", "g", "f", "e", "d", "c", "b", "a", EMPTY};
         } else if (color == ChessGame.TeamColor.WHITE) {
-            headers = new String[]{"   ", " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", "   "};
+            headers = new String[]{"   ", "a", "b", "c", "d", "e", "f", "g", "h", EMPTY};
         }
 
         out.print(SET_BG_COLOR_BLACK);
@@ -65,10 +67,8 @@ public class DrawChessBoard {
     }
 
     private static void drawRow(PrintStream out, ChessGame.TeamColor color, Integer boardRow, ChessBoard board) {
-        drawLineOfRow(out, boardRow, color, EMPTY, board);
         String rowNum = " " + boardRow.toString() + " ";
         drawLineOfRow(out, boardRow, color, rowNum, board);
-        drawLineOfRow(out, boardRow, color, EMPTY, board);
     }
 
     private static void drawLineOfRow(PrintStream out, int boardRow, ChessGame.TeamColor color, String rowNum, ChessBoard board) {
@@ -102,7 +102,12 @@ public class DrawChessBoard {
             }
 
             out.print(EMPTY);
-            out.print(EMPTY);
+            ChessPiece piece = board.getPiece(new ChessPosition(boardRow, colNum));
+            if (rowNum != EMPTY && piece != null) {
+                out.print(piece.toString());
+            } else {
+                out.print(EMPTY);
+            }
             out.print(EMPTY);
 
             currColor = changeColor(currColor);
