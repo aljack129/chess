@@ -11,7 +11,7 @@ public class DrawChessBoard {
 
     //Board dimensions
     private static final int BOARD_SIZE_IN_SQUARES = 10;
-    private static final int SQUARE_SIZE_IN_CHUNKS = 3;
+    private static final String EMPTY = "   ";
 
 
     public static void main(String[] args) {
@@ -19,7 +19,13 @@ public class DrawChessBoard {
 
         out.print(ERASE_SCREEN);
 
-        drawHeadFoot(out, ChessGame.TeamColor.BLACK);
+        ChessBoard board = new ChessGame().getBoard();
+        board.resetBoard();
+        ChessGame.TeamColor color = ChessGame.TeamColor.BLACK;
+        drawHeadFoot(out, color);
+        drawRows(out, color, board);
+        drawHeadFoot(out, color);
+
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
@@ -33,25 +39,89 @@ public class DrawChessBoard {
             headers = new String[]{"   ", " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", "   "};
         }
 
-        setBlack(out);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; boardCol++) {
             out.print(EMPTY);
 
-            out.print(SET_BG_COLOR_BLACK);
-            out.print(SET_TEXT_COLOR_WHITE);
-
             out.print(headers[boardCol]);
-
-            setBlack(out);
 
             out.print(EMPTY);
         }
         out.println();
     }
 
-    private static void drawSideBorder(PrintStream out, int boardRow) {
+    private static void drawRows(PrintStream out, ChessGame.TeamColor color, ChessBoard board) {
+        if (color == ChessGame.TeamColor.BLACK) {
+            for (int boardRow = 1; boardRow <= 8; boardRow++) {
+                drawRow(out, color, boardRow, board);
+            }
+        } else {
+            for (int boardRow = 1; boardRow <= 8; boardRow++) {
+                drawRow(out, color, boardRow, board);
+            }
+        }
+    }
 
+    private static void drawRow(PrintStream out, ChessGame.TeamColor color, Integer boardRow, ChessBoard board) {
+        drawLineOfRow(out, boardRow, color, EMPTY, board);
+        String rowNum = " " + boardRow.toString() + " ";
+        drawLineOfRow(out, boardRow, color, rowNum, board);
+        drawLineOfRow(out, boardRow, color, EMPTY, board);
+    }
+
+    private static void drawLineOfRow(PrintStream out, int boardRow, ChessGame.TeamColor color, String rowNum, ChessBoard board) {
+        setBlack(out);
+        out.print(EMPTY);
+        out.print(rowNum);
+        out.print(EMPTY);
+
+        ChessGame.TeamColor currColor;
+        if (color == ChessGame.TeamColor.BLACK) {
+            if (boardRow % 2 == 1) {
+                currColor = ChessGame.TeamColor.WHITE;
+            } else {
+                currColor = ChessGame.TeamColor.BLACK;
+            }
+        } else {
+            if (boardRow % 2 == 0) {
+                currColor = ChessGame.TeamColor.WHITE;
+            } else {
+                currColor = ChessGame.TeamColor.BLACK;
+            }
+        }
+
+        for (int colNum = 1; colNum <= BOARD_SIZE_IN_SQUARES - 2; colNum++) {
+            if (currColor == ChessGame.TeamColor.BLACK) {
+                out.print(SET_BG_COLOR_BLACK);
+                out.print(SET_TEXT_COLOR_BLUE);
+            } else {
+                out.print(SET_BG_COLOR_WHITE);
+                out.print(SET_TEXT_COLOR_BLUE);
+            }
+
+            out.print(EMPTY);
+            out.print(EMPTY);
+            out.print(EMPTY);
+
+            currColor = changeColor(currColor);
+        }
+
+        setBlack(out);
+        out.print(EMPTY);
+        out.print(rowNum);
+        out.print(EMPTY);
+
+        out.println();
+    }
+
+    private static ChessGame.TeamColor changeColor(ChessGame.TeamColor color) {
+        if (color == ChessGame.TeamColor.BLACK) {
+            return ChessGame.TeamColor.WHITE;
+        } else {
+            return ChessGame.TeamColor.BLACK;
+        }
     }
 
     private static void setWhite(PrintStream out) {
@@ -61,6 +131,6 @@ public class DrawChessBoard {
 
     private static void setBlack(PrintStream out) {
         out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
     }
 }
