@@ -2,12 +2,11 @@ package ui;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import static ui.EscapeSequences.*;
 
 import chess.*;
+import com.google.gson.Gson;
 
 public class DrawChessBoard {
 
@@ -21,9 +20,13 @@ public class DrawChessBoard {
 
         out.print(ERASE_SCREEN);
 
-        ChessBoard board = new ChessGame().getBoard();
-        board.resetBoard();
-        ChessGame.TeamColor color = ChessGame.TeamColor.BLACK;
+        ChessBoard board = new Gson().fromJson(args[1], ChessBoard.class);
+        ChessGame.TeamColor color;
+        if(args[2].equals("BLACK")){
+            color = ChessGame.TeamColor.BLACK;
+        } else{
+            color = ChessGame.TeamColor.WHITE;
+        }
         drawHeadFoot(out, color);
         drawRows(out, color, board);
         drawHeadFoot(out, color);
@@ -127,11 +130,6 @@ public class DrawChessBoard {
         } else {
             return ChessGame.TeamColor.BLACK;
         }
-    }
-
-    private static void setWhite(PrintStream out) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_WHITE);
     }
 
     private static void setBlack(PrintStream out) {

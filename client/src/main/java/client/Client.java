@@ -1,12 +1,13 @@
 package client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import model.*;
 
 public class Client {
     private Boolean signedIn = false;
-    private String authToken = "";
+    private AuthData auth = null;
     private final ServerFacade server;
 
     public Client(String serverUrl) {
@@ -36,50 +37,101 @@ public class Client {
     }
 
     public String logIn(String... params) throws ResponseException {
-        if (params.length < 2) {
-            throw new ResponseException("Expected: <username> <password>");
+        if (!signedIn) {
+            if (params.length < 2) {
+                throw new ResponseException("Expected: <username> <password>");
+            }
+            String username = params[0];
+            String password = params[1];
+            LoginResult result = server.logIn(new LoginInput(username, password));
+            auth = new AuthData(username, result.authToken());
+            signedIn = true;
+            return "Logged in as " + username;
         }
-        String username = params[0];
-        String password = params[1];
-        server.logIn(new LoginInput(username, password));
-        signedIn = true;
-        return "Logged in as " + username;
+        throw new ResponseException("Already logged in");
     }
 
     public String register(String... params) {
-        if (params.length < 3) {
-            throw new ResponseException("Expected: <username> <password>");
+        if (!signedIn) {
+            if (params.length < 3) {
+                throw new ResponseException("Expected: <username> <password>");
+            }
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            RegisterUserResult result = server.register(new RegisterUserInput(username, password, email));
+            auth = new AuthData(username, result.authToken());
+            signedIn = true;
+            return "Registered and logged in as" + username;
         }
-        String username = params[0];
-        String password = params[1];
-        String email = params[2];
-        server.register(new RegisterUserInput(username, password, email));
-        signedIn = true;
-        return "Registered and logged in as" + username;
+        throw new ResponseException("Already logged in");
     }
 
     public String logOut() {
-        return "Logged out as";
+        if (signedIn) {
+            server.logOut(auth.authToken());
+            return "Logged out as" + auth.username();
+        }
+        throw new ResponseException("Not signed in");
     }
 
     public String clear() {
+        server.clear();
         return "Database cleared";
     }
 
     public String createGame(String... params) {
-        return "has GameId";
+        if (signedIn) {
+            String gameName = params[0];
+            CreateGameResult result = server.createGame(auth.authToken(), new CreateGameInput(gameName));
+            return gameName + " has GameId " + result.gameID();
+        }
+        throw new ResponseException("Not signed in");
     }
 
     public String playGame(String... params) {
-        return "gamename";
+        if (signedIn) {
+            return "gamename";
+        }
+        throw new ResponseException("Not signed in");
     }
 
     public String observeGame(String... params) {
-        return "gamename";
+        if (signedIn) {
+            return "gamename";
+        }
+        throw new ResponseException("Not signed in");
     }
 
     public String listGames() {
-        return "Games:";
+        if (signedIn) {
+            ArrayList<GameData> games = server.listGames(auth.authToken());
+            var result = new StringBuilder();
+            for (GameData game : games) {
+                String white;
+                if (game.whiteUsername() != null) {
+                    white = game.whiteUsername();
+                } else {
+                    white = "No Player";
+                }
+
+                String black;
+                if (game.blackUsername() != null) {
+                    black = game.blackUsername();
+                } else {
+                    black = "No Player";
+                }
+
+                String gameInfo = """
+                        %d : %s
+                        white: %s
+                        black: %s
+                        """.formatted(game.gameID(), game.gameName(), white, black);
+                result.append(gameInfo);
+            }
+            return "Games:\n" + result;
+        }
+        throw new ResponseException("Not signed in");
     }
 
     public String help() {
@@ -87,8 +139,8 @@ public class Client {
             return """
                     - list
                     - createGame <game name>
-                    - play <gameID> <color>
-                    - observe <gameID> <color>
+                    - play <gameID> [WHITE|BLACK]
+                    - observe <gameID>
                     - clear
                     - logout
                     - quit
