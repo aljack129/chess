@@ -12,25 +12,17 @@ public class DrawChessBoard {
 
     //Board dimensions
     private static final int BOARD_SIZE_IN_SQUARES = 10;
-    //private static final String EMPTY = "   ";
 
+    public DrawChessBoard() {
+    }
 
-    public static void main(String[] args) {
+    public void drawBoard(ChessBoard board, ChessGame.TeamColor color) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         out.print(ERASE_SCREEN);
 
-        ChessBoard board = new Gson().fromJson(args[1], ChessBoard.class);
-        ChessGame.TeamColor color;
-        if(args[2].equals("BLACK")){
-            color = ChessGame.TeamColor.BLACK;
-        } else{
-            color = ChessGame.TeamColor.WHITE;
-        }
         drawHeadFoot(out, color);
         drawRows(out, color, board);
         drawHeadFoot(out, color);
-
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
@@ -63,7 +55,7 @@ public class DrawChessBoard {
                 drawRow(out, color, boardRow, board);
             }
         } else {
-            for (int boardRow = 1; boardRow <= 8; boardRow++) {
+            for (int boardRow = 8; boardRow >= 1; boardRow--) {
                 drawRow(out, color, boardRow, board);
             }
         }
@@ -94,26 +86,16 @@ public class DrawChessBoard {
                 currColor = ChessGame.TeamColor.BLACK;
             }
         }
-
-        for (int colNum = 1; colNum <= BOARD_SIZE_IN_SQUARES - 2; colNum++) {
-            if (currColor == ChessGame.TeamColor.BLACK) {
-                out.print(SET_BG_COLOR_BLACK);
-                out.print(SET_TEXT_COLOR_BLUE);
-            } else {
-                out.print(SET_BG_COLOR_WHITE);
-                out.print(SET_TEXT_COLOR_BLUE);
+        if (ChessGame.TeamColor.BLACK == color) {
+            for (int colNum = 1; colNum <= 8; colNum++) {
+                drawSquare(out, boardRow, colNum, rowNum, currColor, board);
+                currColor = changeColor(currColor);
             }
-
-            out.print(EMPTY);
-            ChessPiece piece = board.getPiece(new ChessPosition(boardRow, colNum));
-            if (rowNum != EMPTY && piece != null) {
-                out.print(piece.toString());
-            } else {
-                out.print(EMPTY);
+        } else {
+            for (int colNum = 8; colNum >= 1; colNum--) {
+                drawSquare(out, boardRow, colNum, rowNum, currColor, board);
+                currColor = changeColor(currColor);
             }
-            out.print(EMPTY);
-
-            currColor = changeColor(currColor);
         }
 
         setBlack(out);
@@ -122,6 +104,25 @@ public class DrawChessBoard {
         out.print(EMPTY);
 
         out.println();
+    }
+
+    private static void drawSquare(PrintStream out, int boardRow, int colNum, String rowNum, ChessGame.TeamColor currColor, ChessBoard board) {
+        if (currColor == ChessGame.TeamColor.BLACK) {
+            out.print(SET_BG_COLOR_BLACK);
+            out.print(SET_TEXT_COLOR_BLUE);
+        } else {
+            out.print(SET_BG_COLOR_WHITE);
+            out.print(SET_TEXT_COLOR_BLUE);
+        }
+
+        out.print(EMPTY);
+        ChessPiece piece = board.getPiece(new ChessPosition(boardRow, colNum));
+        if (!rowNum.equals(EMPTY) && piece != null) {
+            out.print(piece);
+        } else {
+            out.print(EMPTY);
+        }
+        out.print(EMPTY);
     }
 
     private static ChessGame.TeamColor changeColor(ChessGame.TeamColor color) {

@@ -25,7 +25,7 @@ public class Client {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-            System.out.println(">>>");
+            System.out.println("\n>>>");
             String line = scanner.nextLine();
             try {
                 result = eval(line);
@@ -48,8 +48,8 @@ public class Client {
                 case "logout" -> logOut();
                 case "list" -> listGames();
                 case "creategame" -> createGame(parameters);
-                case "playgame" -> playGame(parameters);
-                case "observegame" -> observeGame(parameters);
+                case "play" -> playGame(parameters);
+                case "observe" -> observeGame(parameters);
                 case "clear" -> clear();
                 case "quit" -> "quit";
                 default -> help();
@@ -67,7 +67,6 @@ public class Client {
             String username = params[0];
             String password = params[1];
             LoginResult result = server.logIn(new LoginInput(username, password));
-            System.out.print(result.authToken());
             auth = result.authToken();
             signedIn = true;
             return "Logged in as " + username;
@@ -107,6 +106,9 @@ public class Client {
     }
 
     public String createGame(String... params) {
+        if (params.length < 1) {
+            throw new ResponseException("Expected: <game name>");
+        }
         if (signedIn) {
             String gameName = params[0];
             CreateGameResult result = server.createGame(auth, new CreateGameInput(gameName));
@@ -116,6 +118,9 @@ public class Client {
     }
 
     public String playGame(String... params) {
+        if (params.length < 2) {
+            throw new ResponseException("Expected: <gameId> [WHITE|BLACK]");
+        }
         if (signedIn) {
             int gameId;
             try {
@@ -138,13 +143,16 @@ public class Client {
             }
             server.joinGame(auth, new JoinGameInput(gameId, color));
             GameData game = findGame(gameId);
-            DrawChessBoard.main(new String[]{new Gson().toJson(game.game().getBoard()), color_string});
+            new DrawChessBoard().drawBoard(game.game().getBoard(), color);
             return game.gameName() + " joined as " + color_string;
         }
         throw new ResponseException("Not signed in");
     }
 
     public String observeGame(String... params) {
+        if (params.length < 1) {
+            throw new ResponseException("Expected: <gameID>");
+        }
         if (signedIn) {
             int gameId;
             try {
@@ -156,7 +164,7 @@ public class Client {
                 throw new ResponseException("gameID must be greater than 0");
             }
             GameData game = findGame(gameId);
-            DrawChessBoard.main(new String[]{new Gson().toJson(game.game().getBoard()), "WHITE"});
+            new DrawChessBoard().drawBoard(game.game().getBoard(), ChessGame.TeamColor.WHITE);
             return game.gameName() + " joined as observer";
         }
         throw new ResponseException("Not signed in");
@@ -212,13 +220,11 @@ public class Client {
                     - observe <gameID>
                     - clear
                     - logout
-                    - quit
-                    """;
+                    - quit""";
         }
         return """
                 - register <username> <password> <email>
                 - login <username> <password>
-                - clear
-                """;
+                - clear""";
     }
 }
