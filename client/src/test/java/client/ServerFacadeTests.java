@@ -33,6 +33,7 @@ public class ServerFacadeTests {
     @Test
     public void RegisterLogInOutTest() {
         assertDoesNotThrow(() -> {
+            serverFacade.clear();
             RegisterUserResult registerResult = serverFacade.register(new RegisterUserInput("maggie", "magic", "myemail"));
             serverFacade.logOut(registerResult.authToken());
 

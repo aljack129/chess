@@ -1,6 +1,9 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
 
@@ -73,7 +76,7 @@ public class ServerFacade {
                 .uri(URI.create(serverUrl + path))
                 .method(method, requestBody);
         if (authToken != null) {
-            request.setHeader("authToken", authToken);
+            request.setHeader("authorization", authToken);
         }
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
@@ -105,6 +108,17 @@ public class ServerFacade {
         }
 
         if (responseClass != null) {
+            if (responseClass == ArrayList.class) {
+                JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+                ArrayList<GameData> gameList = new ArrayList<>();
+                JsonArray array = jsonObject.getAsJsonArray("games");
+                for (int i = 0; i < array.size(); i++) {
+                    GameData game = new Gson().fromJson(array.get(i), GameData.class);
+                    gameList.add(game);
+                }
+                T result = (T) gameList;
+                return result;
+            }
             return new Gson().fromJson(response.body(), responseClass);
         }
 
