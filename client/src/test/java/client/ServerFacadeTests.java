@@ -31,7 +31,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void RegisterLogInOutTest() {
+    public void registerLogInOutTest() {
         assertDoesNotThrow(() -> {
             serverFacade.clear();
             RegisterUserResult registerResult = serverFacade.register(new RegisterUserInput("maggie", "magic", "myemail"));
