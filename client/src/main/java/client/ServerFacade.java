@@ -40,7 +40,7 @@ public class ServerFacade {
     }
 
     public void logOut(String authToken) throws ResponseException {
-        var request = buildRequest("DELETE", "/db", null, authToken);
+        var request = buildRequest("DELETE", "/session", null, authToken);
         sendRequest(request);
     }
 
@@ -72,11 +72,11 @@ public class ServerFacade {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, requestBody);
-        if (body != null) {
-            request.setHeader("Content-Type", "application/json");
-        }
         if (authToken != null) {
             request.setHeader("authToken", authToken);
+        }
+        if (body != null) {
+            request.setHeader("Content-Type", "application/json");
         }
 
         return request.build();
