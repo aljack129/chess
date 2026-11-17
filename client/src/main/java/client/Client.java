@@ -77,7 +77,7 @@ public class Client {
     public String register(String... params) {
         if (!signedIn) {
             if (params.length < 3) {
-                throw new ResponseException("Expected: <username> <password>");
+                throw new ResponseException("Expected: <username> <password> <email>");
             }
             String username = params[0];
             String password = params[1];
@@ -95,7 +95,7 @@ public class Client {
             server.logOut(auth);
             signedIn = false;
             auth = "";
-            return "Logged out as ";
+            return "Logged out";
         }
         throw new ResponseException("Not signed in");
     }
